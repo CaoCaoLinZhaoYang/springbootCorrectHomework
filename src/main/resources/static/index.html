@@ -125,10 +125,11 @@
                     v-model="homeworkContent"
                     placeholder="请输入作业内容"
                     style="width: 300px;"
-                    @change="saveHomeworkContent">
+                    @keyup.enter.native="saveHomeworkContent">
                 </el-input>
                 
                 <el-button @click="resetStatus" type="warning">重置当前日期状态</el-button>
+                <el-button @click="showUnfinishedStudents">本作业历史欠交学生</el-button>
             </div>
             
             <div class="control-group">
@@ -143,7 +144,6 @@
                     </template>
                 </el-autocomplete>
                 
-                <el-button @click="showUnfinishedStudents" type="primary">历史欠交学生</el-button>
             </div>
         </div>
         
@@ -189,8 +189,14 @@
         </el-dialog>
         
         <!-- 历史欠交学生对话框 -->
-        <el-dialog title="历史欠交学生" :visible.sync="unfinishedStudentsDialogVisible" width="60%">
-            <el-table :data="unfinishedStudents" style="width: 100%">
+        <el-dialog title="历史欠交学生" :visible.sync="unfinishedStudentsDialogVisible" width="70%">
+            <div style="margin-bottom: 10px;">
+                <el-button @click="sortUnfinishedStudents('date', 'asc')">日期升序</el-button>
+                <el-button @click="sortUnfinishedStudents('date', 'desc')">日期降序</el-button>
+                <el-button @click="sortUnfinishedStudents('studentNumber', 'asc')">学号升序</el-button>
+                <el-button @click="sortUnfinishedStudents('studentNumber', 'desc')">学号降序</el-button>
+            </div>
+            <el-table :data="unfinishedStudents" style="width: 100%" :max-height="400">
                 <el-table-column prop="date" label="日期" width="120"></el-table-column>
                 <el-table-column prop="weekDay" label="星期" width="80"></el-table-column>
                 <el-table-column prop="studentNumber" label="学号" width="80"></el-table-column>
@@ -205,6 +211,7 @@
                         </el-button>
                     </template>
                 </el-table-column>
+                <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip></el-table-column>
             </el-table>
         </el-dialog>
     </div>
@@ -410,7 +417,8 @@
                 showUnfinishedStudents() {
                     axios.get(`/api/correction-records/unfinished-students?typeId=${this.selectedType}`)
                         .then(response => {
-                            this.unfinishedStudents = response.data.map(item => {
+                            // 先获取所有未完成学生的基本信息
+                            const unfinishedStudents = response.data.map(item => {
                                 // 格式化日期
                                 const date = new Date(item.date);
                                 const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
@@ -423,11 +431,54 @@
                                     date: formattedDate,
                                     weekDay: weekDay,
                                     studentNumber: item.studentNumber,
-                                    name: item.name
+                                    name: item.name,
+                                    rawDate: item.date, // 保存原始日期用于查询作业内容
+                                    formattedDate: formattedDate // 保存格式化后的日期用于查询作业内容
                                 };
                             });
-                            this.unfinishedStudentsDialogVisible = true;
+                            
+                            // 为每个日期获取作业内容
+                            const dates = [...new Set(unfinishedStudents.map(s => s.formattedDate))];
+                            const contentPromises = dates.map(date => 
+                                axios.get(`/api/homework-contents?date=${date}&typeId=${this.selectedType}`)
+                                    .catch(() => ({ data: null })) // 处理没有作业内容的情况
+                            );
+                            
+                            return Promise.all(contentPromises)
+                                .then(results => {
+                                    const contentMap = {};
+                                    dates.forEach((date, index) => {
+                                        const contentData = results[index].data;
+                                        contentMap[date] = contentData ? contentData.content : '';
+                                    });
+                                    
+                                    // 将作业内容添加到学生记录中
+                                    this.unfinishedStudents = unfinishedStudents.map(student => ({
+                                        ...student,
+                                        content: contentMap[student.formattedDate] || ''
+                                    }));
+                                    
+                                    // 默认按日期升序排序
+                                    this.sortUnfinishedStudents('date', 'asc');
+                                    this.unfinishedStudentsDialogVisible = true;
+                                });
+                        })
+                        .catch(error => {
+                            console.error('获取未完成学生数据失败:', error);
+                            this.$message({
+                                type: 'error',
+                                message: '获取数据失败'
+                            });
                         });
+                },
+                sortUnfinishedStudents(field, order) {
+                    this.unfinishedStudents.sort((a, b) => {
+                        if (order === 'asc') {
+                            return a[field] < b[field] ? -1 : 1;
+                        } else {
+                            return a[field] > b[field] ? -1 : 1;
+                        }
+                    });
                 },
                 markAsFinished(row) {
                     row.corrected = true;
