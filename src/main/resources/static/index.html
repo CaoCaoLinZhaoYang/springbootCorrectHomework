@@ -106,7 +106,8 @@
                     placeholder="选择日期"
                     format="yyyy 年 MM 月 dd 日"
                     value-format="yyyy-MM-dd"
-                    @change="loadData">
+                    @change="loadData"
+                    :clearable="false">
                 </el-date-picker>
                 
                 <el-button @click="prevDay">上一天</el-button>
@@ -138,7 +139,8 @@
                     :fetch-suggestions="querySearch"
                     placeholder="请输入学号或姓名"
                     @select="handleSelectStudent"
-                    style="width: 300px;">
+                    style="width: 300px;"
+                    :trigger-on-focus="true">
                     <template slot-scope="{ item }">
                         <div class="name">{{ item.studentNumber }} - {{ item.name }}</div>
                     </template>
@@ -172,9 +174,12 @@
         <!-- 学生历史欠交记录对话框 -->
         <el-dialog title="学生历史欠交记录" :visible.sync="studentHistoryDialogVisible" width="60%">
             <el-table :data="studentHistoryRecords" style="width: 100%">
-                <el-table-column prop="date" label="日期" width="120"></el-table-column>
+                <el-table-column prop="date" label="日期" width="120">
+                    <template slot-scope="scope">
+                        {{ formatDate(scope.row.date) }}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="typeName" label="作业类型" width="120"></el-table-column>
-                <el-table-column prop="content" label="作业内容"></el-table-column>
                 <el-table-column label="操作" width="120">
                     <template slot-scope="scope">
                         <el-button 
@@ -185,6 +190,7 @@
                         </el-button>
                     </template>
                 </el-table-column>
+                <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip></el-table-column>
             </el-table>
         </el-dialog>
         
@@ -256,6 +262,13 @@
                     const day = String(now.getDate()).padStart(2, '0');
                     return `${year}-${month}-${day}`;
                 },
+                formatDate(dateString) {
+                    const date = new Date(dateString);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
                 updateTime() {
                     const now = new Date();
                     const year = now.getFullYear();
@@ -277,12 +290,6 @@
                     date.setDate(date.getDate() + 1);
                     this.currentDate = this.formatDate(date);
                     this.loadData();
-                },
-                formatDate(date) {
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
                 },
                 loadStudents() {
                     axios.get('/api/students')
@@ -390,11 +397,17 @@
                     });
                 },
                 querySearch(queryString, cb) {
+                    // 当queryString为空时，显示所有学生（按学号排序）
                     if (!queryString) {
-                        cb([]);
+                        // 创建学生列表的副本并按学号排序
+                        const sortedStudents = [...this.students].sort((a, b) => {
+                            return a.studentNumber.localeCompare(b.studentNumber);
+                        });
+                        cb(sortedStudents);
                         return;
                     }
                     
+                    // 当有查询字符串时，按原有逻辑过滤学生
                     axios.get(`/api/students/search?keyword=${queryString}`)
                         .then(response => {
                             cb(response.data);
