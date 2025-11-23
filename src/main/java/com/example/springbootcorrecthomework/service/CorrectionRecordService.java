@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import com.example.springbootcorrecthomework.repository.CorrectionRecordRepository;
+import com.example.springbootcorrecthomework.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -15,13 +16,33 @@ import java.util.Map;
 public class CorrectionRecordService extends ServiceImpl<CorrectionRecordRepository, CorrectionRecord> {
     
     private final CorrectionRecordRepository correctionRecordRepository;
+    private final StudentRepository studentRepository;
     
-    public CorrectionRecordService(CorrectionRecordRepository correctionRecordRepository) {
+    public CorrectionRecordService(CorrectionRecordRepository correctionRecordRepository, 
+                                   StudentRepository studentRepository) {
         this.correctionRecordRepository = correctionRecordRepository;
+        this.studentRepository = studentRepository;
     }
     
     public List<CorrectionRecord> findByDateAndType(Date date, Integer homeworkTypeId) {
-        return correctionRecordRepository.findByDateAndType(date, homeworkTypeId);
+        List<CorrectionRecord> records = correctionRecordRepository.findByDateAndType(date, homeworkTypeId);
+        
+        // 如果当天该类型作业还没有记录，则为所有学生创建默认记录
+        if (records.isEmpty()) {
+            List<com.example.springbootcorrecthomework.entity.Student> students = studentRepository.selectList(null);
+            for (com.example.springbootcorrecthomework.entity.Student student : students) {
+                CorrectionRecord record = new CorrectionRecord();
+                record.setDate(date);
+                record.setStudentId(student.getId());
+                record.setHomeworkTypeId(homeworkTypeId);
+                record.setCorrected(false);
+                correctionRecordRepository.insert(record);
+            }
+            // 重新查询记录
+            records = correctionRecordRepository.findByDateAndType(date, homeworkTypeId);
+        }
+        
+        return records;
     }
     
     public List<CorrectionRecord> findUnfinishedByStudentAndType(Integer studentId, Integer homeworkTypeId) {
