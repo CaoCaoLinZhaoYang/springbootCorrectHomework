@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五4班作业订正系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #409EFF;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .control-group {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .control-group label {
+            font-weight: bold;
+        }
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .student-btn {
+            height: 50px;
+            font-size: 14px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .finished {
+            color: #67C23A;
+        }
+        .unfinished {
+            color: #F56C6C;
+        }
+        .el-button.unfinished {
+            background-color: #F56C6C;
+            border-color: #F56C6C;
+        }
+        .el-button.finished {
+            background-color: #67C23A;
+            border-color: #67C23A;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>五4班作业订正系统</h1>
+            <div>{{ currentTime }}</div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <el-date-picker
+                    v-model="currentDate"
+                    type="date"
+                    placeholder="选择日期"
+                    format="yyyy 年 MM 月 dd 日"
+                    value-format="yyyy-MM-dd"
+                    @change="loadData">
+                </el-date-picker>
+                
+                <el-button @click="prevDay">上一天</el-button>
+                <el-button @click="nextDay">下一天</el-button>
+                
+                <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型">
+                    <el-option
+                        v-for="type in homeworkTypes"
+                        :key="type.id"
+                        :label="type.name"
+                        :value="type.id">
+                    </el-option>
+                </el-select>
+                
+                <el-input
+                    v-model="homeworkContent"
+                    placeholder="请输入作业内容"
+                    style="width: 300px;"
+                    @change="saveHomeworkContent">
+                </el-input>
+                
+                <el-button @click="resetStatus" type="warning">重置当前日期状态</el-button>
+            </div>
+            
+            <div class="control-group">
+                <el-autocomplete
+                    v-model="searchKeyword"
+                    :fetch-suggestions="querySearch"
+                    placeholder="请输入学号或姓名"
+                    @select="handleSelectStudent"
+                    style="width: 300px;">
+                    <template slot-scope="{ item }">
+                        <div class="name">{{ item.studentNumber }} - {{ item.name }}</div>
+                    </template>
+                </el-autocomplete>
+                
+                <el-button @click="showUnfinishedStudents" type="primary">历史欠交学生</el-button>
+            </div>
+        </div>
+        
+        <div class="students-grid">
+            <el-button
+                v-for="student in students"
+                :key="student.id"
+                :class="getStudentButtonClass(student)"
+                @click="toggleStudentStatus(student)"
+                class="student-btn">
+                {{ student.studentNumber }}.{{ student.name }}
+            </el-button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number finished">{{ finishedCount }}</div>
+                <div>已订正</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number unfinished">{{ unfinishedCount }}</div>
+                <div>未订正</div>
+            </div>
+        </div>
+        
+        <!-- 学生历史欠交记录对话框 -->
+        <el-dialog title="学生历史欠交记录" :visible.sync="studentHistoryDialogVisible" width="60%">
+            <el-table :data="studentHistoryRecords" style="width: 100%">
+                <el-table-column prop="date" label="日期" width="120"></el-table-column>
+                <el-table-column prop="typeName" label="作业类型" width="120"></el-table-column>
+                <el-table-column prop="content" label="作业内容"></el-table-column>
+                <el-table-column label="操作" width="120">
+                    <template slot-scope="scope">
+                        <el-button 
+                            size="mini" 
+                            :type="scope.row.corrected ? 'success' : 'danger'" 
+                            @click="markAsFinished(scope.row)">
+                            {{ scope.row.corrected ? '已完成' : '标记完成' }}
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-dialog>
+        
+        <!-- 历史欠交学生对话框 -->
+        <el-dialog title="历史欠交学生" :visible.sync="unfinishedStudentsDialogVisible" width="60%">
+            <el-table :data="unfinishedStudents" style="width: 100%">
+                <el-table-column prop="date" label="日期" width="120"></el-table-column>
+                <el-table-column prop="weekDay" label="星期" width="80"></el-table-column>
+                <el-table-column prop="studentNumber" label="学号" width="80"></el-table-column>
+                <el-table-column prop="name" label="姓名" width="120"></el-table-column>
+                <el-table-column label="操作" width="120">
+                    <template slot-scope="scope">
+                        <el-button 
+                            size="mini" 
+                            type="danger" 
+                            @click="markUnfinishedStudentAsFinished(scope.row)">
+                            标记完成
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-dialog>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    currentTime: '',
+                    currentDate: this.getCurrentDate(),
+                    students: [],
+                    homeworkTypes: [],
+                    selectedType: 1,
+                    homeworkContent: '',
+                    correctionRecords: [],
+                    finishedCount: 0,
+                    unfinishedCount: 0,
+                    searchKeyword: '',
+                    studentSuggestions: [],
+                    studentHistoryDialogVisible: false,
+                    studentHistoryRecords: [],
+                    unfinishedStudentsDialogVisible: false,
+                    unfinishedStudents: []
+                };
+            },
+            mounted() {
+                this.updateTime();
+                setInterval(this.updateTime, 1000);
+                this.loadStudents();
+                this.loadHomeworkTypes();
+                this.loadData();
+            },
+            methods: {
+                getCurrentDate() {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+                updateTime() {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    this.currentTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+                },
+                prevDay() {
+                    const date = new Date(this.currentDate);
+                    date.setDate(date.getDate() - 1);
+                    this.currentDate = this.formatDate(date);
+                    this.loadData();
+                },
+                nextDay() {
+                    const date = new Date(this.currentDate);
+                    date.setDate(date.getDate() + 1);
+                    this.currentDate = this.formatDate(date);
+                    this.loadData();
+                },
+                formatDate(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+                loadStudents() {
+                    axios.get('/api/students')
+                        .then(response => {
+                            this.students = response.data;
+                        });
+                },
+                loadHomeworkTypes() {
+                    axios.get('/api/homework-types')
+                        .then(response => {
+                            this.homeworkTypes = response.data;
+                        });
+                },
+                loadData() {
+                    // 加载订正记录
+                    axios.get(`/api/correction-records?date=${this.currentDate}&typeId=${this.selectedType}`)
+                        .then(response => {
+                            this.correctionRecords = response.data;
+                            this.updateStats();
+                        });
+                    
+                    // 加载作业内容
+                    axios.get(`/api/homework-contents?date=${this.currentDate}&typeId=${this.selectedType}`)
+                        .then(response => {
+                            this.homeworkContent = response.data ? response.data.content : '';
+                        })
+                        .catch(() => {
+                            this.homeworkContent = '';
+                        });
+                },
+                updateStats() {
+                    axios.get(`/api/correction-records/statistics?date=${this.currentDate}&typeId=${this.selectedType}`)
+                        .then(response => {
+                            this.finishedCount = response.data.finished;
+                            this.unfinishedCount = response.data.unfinished;
+                        });
+                },
+                getStudentButtonClass(student) {
+                    const record = this.correctionRecords.find(r => r.studentId === student.id);
+                    if (record && record.corrected) {
+                        return 'finished';
+                    }
+                    return 'unfinished';
+                },
+                toggleStudentStatus(student) {
+                    let record = this.correctionRecords.find(r => r.studentId === student.id);
+                    
+                    if (!record) {
+                        // 创建新记录
+                        record = {
+                            date: this.currentDate,
+                            studentId: student.id,
+                            homeworkTypeId: this.selectedType,
+                            corrected: true
+                        };
+                        
+                        axios.post('/api/correction-records', record)
+                            .then(response => {
+                                this.correctionRecords.push(response.data);
+                                this.updateStats();
+                            });
+                    } else {
+                        // 更新现有记录
+                        record.corrected = !record.corrected;
+                        axios.post('/api/correction-records', record)
+                            .then(response => {
+                                this.updateStats();
+                            });
+                    }
+                },
+                saveHomeworkContent() {
+                    axios.get(`/api/homework-contents?date=${this.currentDate}&typeId=${this.selectedType}`)
+                        .then(response => {
+                            const content = response.data || {};
+                            content.date = this.currentDate;
+                            content.homeworkTypeId = this.selectedType;
+                            content.content = this.homeworkContent;
+                            
+                            return axios.post('/api/homework-contents', content);
+                        })
+                        .catch(() => {
+                            // 新建
+                            const content = {
+                                date: this.currentDate,
+                                homeworkTypeId: this.selectedType,
+                                content: this.homeworkContent
+                            };
+                            return axios.post('/api/homework-contents', content);
+                        });
+                },
+                resetStatus() {
+                    this.$confirm('此操作将重置当前日期所有学生的订正状态, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        axios.put(`/api/correction-records/reset?date=${this.currentDate}&typeId=${this.selectedType}`)
+                            .then(() => {
+                                this.loadData();
+                                this.$message({
+                                    type: 'success',
+                                    message: '重置成功!'
+                                });
+                            });
+                    });
+                },
+                querySearch(queryString, cb) {
+                    if (!queryString) {
+                        cb([]);
+                        return;
+                    }
+                    
+                    axios.get(`/api/students/search?keyword=${queryString}`)
+                        .then(response => {
+                            cb(response.data);
+                        });
+                },
+                handleSelectStudent(item) {
+                    // 获取学生历史欠交记录
+                    axios.get(`/api/correction-records/student-unfinished?studentId=${item.id}&typeId=${this.selectedType}`)
+                        .then(response => {
+                            this.studentHistoryRecords = response.data.map(record => {
+                                const type = this.homeworkTypes.find(t => t.id === record.homeworkTypeId);
+                                return {
+                                    ...record,
+                                    typeName: type ? type.name : ''
+                                };
+                            });
+                            this.studentHistoryDialogVisible = true;
+                        });
+                },
+                showUnfinishedStudents() {
+                    axios.get(`/api/correction-records/unfinished-students?typeId=${this.selectedType}`)
+                        .then(response => {
+                            this.unfinishedStudents = response.data.map(item => {
+                                const date = item[0];
+                                const studentNumber = item[1];
+                                const name = item[2];
+                                
+                                // 计算星期几
+                                const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+                                const d = new Date(date);
+                                const weekDay = weekDays[d.getDay()];
+                                
+                                return {
+                                    date: date,
+                                    weekDay: weekDay,
+                                    studentNumber: studentNumber,
+                                    name: name
+                                };
+                            });
+                            this.unfinishedStudentsDialogVisible = true;
+                        });
+                },
+                markAsFinished(row) {
+                    row.corrected = true;
+                    axios.post('/api/correction-records', row)
+                        .then(() => {
+                            this.$message({
+                                type: 'success',
+                                message: '标记成功!'
+                            });
+                        });
+                },
+                markUnfinishedStudentAsFinished(row) {
+                    // 这里应该实现标记历史欠交学生为已完成的功能
+                    this.$message({
+                        type: 'info',
+                        message: '功能待实现'
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
