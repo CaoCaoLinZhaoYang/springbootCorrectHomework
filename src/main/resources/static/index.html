@@ -440,11 +440,48 @@
                         });
                 },
                 markUnfinishedStudentAsFinished(row) {
-                    // 这里应该实现标记历史欠交学生为已完成的功能
-                    this.$message({
-                        type: 'info',
-                        message: '功能待实现'
-                    });
+                    // 标记历史欠交学生为已完成
+                    // 首先需要找到该学生的订正记录ID
+                    axios.get(`/api/correction-records?date=${row.date}&typeId=${this.selectedType}`)
+                        .then(response => {
+                            // 在返回的记录中找到对应学生的记录
+                            const student = this.students.find(s => s.studentNumber === row.studentNumber);
+                            if (student) {
+                                const record = response.data.find(r => r.studentId === student.id);
+                                if (record) {
+                                    // 更新记录状态为已完成
+                                    record.corrected = true;
+                                    return axios.post('/api/correction-records', record);
+                                }
+                            }
+                            return Promise.reject("未找到对应记录");
+                        })
+                        .then(() => {
+                            // 从当前列表中移除该记录
+                            const index = this.unfinishedStudents.findIndex(item => 
+                                item.date === row.date && 
+                                item.studentNumber === row.studentNumber
+                            );
+                            if (index > -1) {
+                                this.unfinishedStudents.splice(index, 1);
+                            }
+                            
+                            // 如果标记的是当前日期的记录，也需要更新主页面的数据
+                            if (row.date === this.currentDate) {
+                                this.loadData();
+                            }
+                            
+                            this.$message({
+                                type: 'success',
+                                message: '标记成功!'
+                            });
+                        })
+                        .catch(error => {
+                            this.$message({
+                                type: 'error',
+                                message: '标记失败: ' + error
+                            });
+                        });
                 }
             }
         });
