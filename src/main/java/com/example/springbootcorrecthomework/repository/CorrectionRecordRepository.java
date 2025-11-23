@@ -1,6 +1,7 @@
 package com.example.springbootcorrecthomework.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -23,7 +24,7 @@ public interface CorrectionRecordRepository extends BaseMapper<CorrectionRecord>
            "WHERE c.homework_type_id = #{homeworkTypeId} AND c.corrected = false AND c.date IN (" +
            "SELECT date FROM correction_records WHERE homework_type_id = #{homeworkTypeId} GROUP BY date HAVING COUNT(CASE WHEN corrected = true THEN 1 END) > 0" +
            ") ORDER BY c.date, s.student_number")
-    List<Object[]> findUnfinishedStudentsByType(@Param("homeworkTypeId") Integer homeworkTypeId);
+    List<UnfinishedStudentDTO> findUnfinishedStudentsByType(@Param("homeworkTypeId") Integer homeworkTypeId);
     
     @Update("UPDATE correction_records SET corrected = false WHERE date = #{date} AND homework_type_id = #{homeworkTypeId}")
     int resetByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);

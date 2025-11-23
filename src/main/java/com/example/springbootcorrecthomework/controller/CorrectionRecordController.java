@@ -1,5 +1,6 @@
 package com.example.springbootcorrecthomework.controller;
 
+import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import com.example.springbootcorrecthomework.service.CorrectionRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class CorrectionRecordController {
     }
     
     @GetMapping("/unfinished-students")
-    public List<Object[]> getUnfinishedStudents(@RequestParam Integer typeId) {
+    public List<UnfinishedStudentDTO> getUnfinishedStudents(@RequestParam Integer typeId) {
         return correctionRecordService.findUnfinishedStudentsByType(typeId);
     }
     

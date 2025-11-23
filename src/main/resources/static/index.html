@@ -411,20 +411,16 @@
                     axios.get(`/api/correction-records/unfinished-students?typeId=${this.selectedType}`)
                         .then(response => {
                             this.unfinishedStudents = response.data.map(item => {
-                                const date = item[0];
-                                const studentNumber = item[1];
-                                const name = item[2];
-                                
                                 // 计算星期几
                                 const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-                                const d = new Date(date);
+                                const d = new Date(item.date);
                                 const weekDay = weekDays[d.getDay()];
                                 
                                 return {
-                                    date: date,
+                                    date: item.date,
                                     weekDay: weekDay,
-                                    studentNumber: studentNumber,
-                                    name: name
+                                    studentNumber: item.studentNumber,
+                                    name: item.name
                                 };
                             });
                             this.unfinishedStudentsDialogVisible = true;

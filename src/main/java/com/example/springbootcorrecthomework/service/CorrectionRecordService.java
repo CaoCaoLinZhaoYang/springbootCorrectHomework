@@ -1,6 +1,7 @@
 package com.example.springbootcorrecthomework.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import com.example.springbootcorrecthomework.repository.CorrectionRecordRepository;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
         return correctionRecordRepository.findUnfinishedByStudentAndType(studentId, homeworkTypeId);
     }
     
-    public List<Object[]> findUnfinishedStudentsByType(Integer homeworkTypeId) {
+    public List<UnfinishedStudentDTO> findUnfinishedStudentsByType(Integer homeworkTypeId) {
         return correctionRecordRepository.findUnfinishedStudentsByType(homeworkTypeId);
     }
     
