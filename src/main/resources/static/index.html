@@ -26,6 +26,10 @@
             margin: 0;
             font-size: 24px;
         }
+        .current-time {
+            font-size: 28px; /* 将右上角的日期写大一点 */
+            font-weight: bold;
+        }
         .controls {
             margin-bottom: 20px;
             padding: 15px;
@@ -52,6 +56,7 @@
         .student-btn {
             height: 50px;
             font-size: 14px;
+            color: black; /* 学生按钮里的名字始终是黑色字体 */
         }
         .stats {
             display: flex;
@@ -77,10 +82,12 @@
         .el-button.unfinished {
             background-color: #F56C6C;
             border-color: #F56C6C;
+            color: black; /* 学生按钮里的名字始终是黑色字体 */
         }
         .el-button.finished {
             background-color: #67C23A;
             border-color: #67C23A;
+            color: black; /* 学生按钮里的名字始终是黑色字体 */
         }
     </style>
 </head>
@@ -88,7 +95,7 @@
     <div id="app">
         <div class="header">
             <h1>五4班作业订正系统</h1>
-            <div>{{ currentTime }}</div>
+            <div class="current-time">{{ currentTime }}</div>
         </div>
         
         <div class="controls">

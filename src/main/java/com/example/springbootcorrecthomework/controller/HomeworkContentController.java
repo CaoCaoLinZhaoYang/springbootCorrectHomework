@@ -25,6 +25,6 @@ public class HomeworkContentController {
     
     @PostMapping
     public HomeworkContent saveHomeworkContent(@RequestBody HomeworkContent homeworkContent) {
-        return homeworkContentService.save(homeworkContent);
+        return homeworkContentService.saveContent(homeworkContent);
     }
 }

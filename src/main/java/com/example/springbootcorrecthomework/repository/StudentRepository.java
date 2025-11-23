@@ -1,20 +1,17 @@
 package com.example.springbootcorrecthomework.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.springbootcorrecthomework.entity.Student;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Mapper
 @Repository
-public interface StudentRepository {
+public interface StudentRepository extends BaseMapper<Student> {
     
     @Select("SELECT * FROM students ORDER BY student_number")
     List<Student> findAll();
-    
-    @Select("SELECT * FROM students WHERE id = #{id}")
-    Student findById(Integer id);
     
     @Select("SELECT * FROM students WHERE student_number LIKE CONCAT('%', #{keyword}, '%') " +
             "OR name LIKE CONCAT('%', #{keyword}, '%') " +

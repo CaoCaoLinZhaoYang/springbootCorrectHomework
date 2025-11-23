@@ -27,7 +27,7 @@ public class CorrectionRecordController {
     
     @PostMapping
     public CorrectionRecord saveCorrectionRecord(@RequestBody CorrectionRecord correctionRecord) {
-        return correctionRecordService.save(correctionRecord);
+        return correctionRecordService.saveRecord(correctionRecord);
     }
     
     @PutMapping("/reset")

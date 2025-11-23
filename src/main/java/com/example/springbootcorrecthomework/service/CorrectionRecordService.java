@@ -1,8 +1,8 @@
 package com.example.springbootcorrecthomework.service;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import com.example.springbootcorrecthomework.repository.CorrectionRecordRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class CorrectionRecordService {
+public class CorrectionRecordService extends ServiceImpl<CorrectionRecordRepository, CorrectionRecord> {
     
-    @Autowired
-    private CorrectionRecordRepository correctionRecordRepository;
+    private final CorrectionRecordRepository correctionRecordRepository;
+    
+    public CorrectionRecordService(CorrectionRecordRepository correctionRecordRepository) {
+        this.correctionRecordRepository = correctionRecordRepository;
+    }
     
     public List<CorrectionRecord> findByDateAndType(Date date, Integer homeworkTypeId) {
         return correctionRecordRepository.findByDateAndType(date, homeworkTypeId);
@@ -28,9 +31,10 @@ public class CorrectionRecordService {
         return correctionRecordRepository.findUnfinishedStudentsByType(homeworkTypeId);
     }
     
-    public CorrectionRecord save(CorrectionRecord correctionRecord) {
+    // 修复save方法与父类方法签名冲突的问题
+    public CorrectionRecord saveRecord(CorrectionRecord correctionRecord) {
         if (correctionRecord.getId() != null) {
-            correctionRecordRepository.update(correctionRecord);
+            correctionRecordRepository.updateById(correctionRecord);
         } else {
             correctionRecordRepository.insert(correctionRecord);
         }
