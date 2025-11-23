@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" oncontextmenu="return false;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -128,7 +128,7 @@
                     @keyup.enter.native="saveHomeworkContent">
                 </el-input>
                 
-                <el-button @click="resetStatus" type="warning">重置当前日期状态</el-button>
+                <el-button @click="resetStatus" type="warning">重置本页面订正状态</el-button>
                 <el-button @click="showUnfinishedStudents">本作业历史欠交学生</el-button>
             </div>
             
@@ -374,7 +374,7 @@
                         });
                 },
                 resetStatus() {
-                    this.$confirm('此操作将重置当前日期所有学生的订正状态, 是否继续?', '提示', {
+                    this.$confirm('此操作将重置本页面订正状态, 是否继续?', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
