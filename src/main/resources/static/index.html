@@ -438,7 +438,10 @@
                     if (!queryString) {
                         // 创建学生列表的副本并按学号排序
                         const sortedStudents = [...this.students].sort((a, b) => {
-                            return a.studentNumber.localeCompare(b.studentNumber);
+                            return a.studentNumber.localeCompare(b.studentNumber, undefined, {
+                                numeric: true,
+                                sensitivity: 'base'
+                            });
                         });
                         cb(sortedStudents);
                         return;
@@ -454,14 +457,75 @@
                     // 获取学生历史欠交记录
                     axios.get(`/api/correction-records/student-unfinished?studentId=${item.id}&typeId=${this.selectedType}`)
                         .then(response => {
-                            this.studentHistoryRecords = response.data.map(record => {
-                                const type = this.homeworkTypes.find(t => t.id === record.homeworkTypeId);
-                                return {
-                                    ...record,
-                                    typeName: type ? type.name : ''
-                                };
+                            // 过滤掉未来日期的记录
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            
+                            this.studentHistoryRecords = response.data
+                                .filter(record => {
+                                    const recordDate = new Date(record.date);
+                                    recordDate.setHours(0, 0, 0, 0);
+                                    return recordDate <= today;
+                                })
+                                .map(record => {
+                                    const type = this.homeworkTypes.find(t => t.id === record.homeworkTypeId);
+                                    return {
+                                        ...record,
+                                        typeName: type ? type.name : ''
+                                    };
+                                });
+                            
+                            // 检查是否有作业记录，如果没有则不显示弹窗
+                            const dates = [...new Set(this.studentHistoryRecords.map(r => r.date))];
+                            const homeworkCheckPromises = dates.map(date => {
+                                // 确保日期格式为 yyyy-MM-dd
+                                let formattedDate = date;
+                                if (typeof date === 'string' && date.includes('T')) {
+                                    // 如果是ISO格式日期，转换为 yyyy-MM-dd
+                                    const d = new Date(date);
+                                    formattedDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+                                }
+                                return axios.get(`/api/correction-records/has-homework?date=${formattedDate}&typeId=${this.selectedType}`);
                             });
-                            this.studentHistoryDialogVisible = true;
+                            
+                            return Promise.all(homeworkCheckPromises)
+                                .then(results => {
+                                    const hasHomeworkMap = {};
+                                    dates.forEach((date, index) => {
+                                        // 确保使用格式化的日期作为键
+                                        let formattedDate = date;
+                                        if (typeof date === 'string' && date.includes('T')) {
+                                            const d = new Date(date);
+                                            formattedDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+                                        }
+                                        hasHomeworkMap[formattedDate] = results[index].data;
+                                    });
+                                    
+                                    // 过滤掉没有作业记录的日期
+                                    this.studentHistoryRecords = this.studentHistoryRecords.filter(record => {
+                                        let recordDate = record.date;
+                                        if (typeof recordDate === 'string' && recordDate.includes('T')) {
+                                            const d = new Date(recordDate);
+                                            recordDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+                                        }
+                                        return hasHomeworkMap[recordDate];
+                                    });
+                                    
+                                    if (this.studentHistoryRecords.length > 0) {
+                                        this.studentHistoryDialogVisible = true;
+                                    } else {
+                                        this.$message({
+                                            type: 'info',
+                                            message: '该学生在当前作业类型下没有欠交记录'
+                                        });
+                                    }
+                                });
+                        })
+                        .catch(() => {
+                            this.$message({
+                                type: 'error',
+                                message: '获取数据失败'
+                            });
                         });
                 },
                 showUnfinishedStudents() {
@@ -470,19 +534,24 @@
                             // 先获取所有未完成学生的基本信息
                             const unfinishedStudents = response.data.map(item => {
                                 // 格式化日期
-                                const date = new Date(item.date);
-                                const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+                                let formattedDate = item.date;
+                                if (typeof item.date === 'string' && item.date.includes('T')) {
+                                    // 如果是ISO格式日期，转换为 yyyy-MM-dd
+                                    const date = new Date(item.date);
+                                    formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+                                }
                                 
                                 // 计算星期几
+                                const dateObj = new Date(formattedDate);
                                 const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-                                const weekDay = weekDays[date.getDay()];
+                                const weekDay = weekDays[dateObj.getDay()];
                                 
                                 return {
                                     date: formattedDate,
                                     weekDay: weekDay,
                                     studentNumber: item.studentNumber,
                                     name: item.name,
-                                    rawDate: item.date, // 保存原始日期用于查询作业内容
+                                    rawDate: formattedDate, // 保存格式化后的日期用于查询作业内容
                                     formattedDate: formattedDate // 保存格式化后的日期用于查询作业内容
                                 };
                             });
@@ -562,7 +631,7 @@
                 markUnfinishedStudentAsFinished(row) {
                     // 标记历史欠交学生为已完成
                     // 首先需要找到该学生的订正记录ID
-                    axios.get(`/api/correction-records?date=${row.date}&typeId=${this.selectedType}`)
+                    axios.get(`/api/correction-records?date=${row.rawDate}&typeId=${this.selectedType}`)
                         .then(response => {
                             // 在返回的记录中找到对应学生的记录
                             const student = this.students.find(s => s.studentNumber === row.studentNumber);

@@ -1,5 +1,6 @@
 package com.example.springbootcorrecthomework.controller;
 
+import cn.hutool.core.lang.Console;
 import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import com.example.springbootcorrecthomework.service.CorrectionRecordService;
@@ -24,6 +25,14 @@ public class CorrectionRecordController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
             @RequestParam Integer typeId) {
         return correctionRecordService.findByDateAndType(date, typeId);
+    }
+    
+    @GetMapping("/has-homework")
+    public boolean hasHomeworkRecords(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+            @RequestParam Integer typeId) {
+        Console.log("date:", date);
+        return correctionRecordService.hasHomeworkRecords(date, typeId);
     }
     
     @PostMapping

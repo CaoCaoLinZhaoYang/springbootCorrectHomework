@@ -27,10 +27,10 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     public List<CorrectionRecord> findByDateAndType(Date date, Integer homeworkTypeId) {
         List<CorrectionRecord> records = correctionRecordRepository.findByDateAndType(date, homeworkTypeId);
         
-        // 如果当天该类型作业还没有记录，则为所有学生创建默认记录
+        // 如果查询不到记录，则为所有学生创建默认记录
         if (records.isEmpty()) {
-            List<com.example.springbootcorrecthomework.entity.Student> students = studentRepository.selectList(null);
-            for (com.example.springbootcorrecthomework.entity.Student student : students) {
+            List<com.example.springbootcorrecthomework.entity.Student> allStudents = studentRepository.findAll();
+            for (com.example.springbootcorrecthomework.entity.Student student : allStudents) {
                 CorrectionRecord record = new CorrectionRecord();
                 record.setDate(date);
                 record.setStudentId(student.getId());
@@ -51,6 +51,11 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     
     public List<UnfinishedStudentDTO> findUnfinishedStudentsByType(Integer homeworkTypeId) {
         return correctionRecordRepository.findUnfinishedStudentsByType(homeworkTypeId);
+    }
+    
+    public boolean hasHomeworkRecords(Date date, Integer homeworkTypeId) {
+        // 判断是否有学生完成订正，如果有则表示布置了作业
+        return correctionRecordRepository.countFinishedRecordsByDateAndType(date, homeworkTypeId) > 0;
     }
     
     // 修复save方法与父类方法签名冲突的问题
