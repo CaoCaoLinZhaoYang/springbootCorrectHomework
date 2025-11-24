@@ -26,6 +26,11 @@
             margin: 0;
             font-size: 24px;
         }
+        .poem {
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.5;
+        }
         .current-time {
             font-size: 28px; /* 将右上角的日期写大一点 */
             font-weight: bold;
@@ -55,7 +60,7 @@
         }
         .student-btn {
             height: 40px;
-            font-size: 12px;
+            font-size: 14px;
             color: black; /* 学生按钮里的名字始终是黑色字体 */
             width: 100%;
             box-sizing: border-box;
@@ -90,7 +95,7 @@
             color: black; /* 学生按钮里的名字始终是黑色字体 */
             width: 100%;
             height: 40px;
-            font-size: 12px;
+            font-size: 14px;
             padding: 5px;
             text-align: center;
             margin: 0;
@@ -101,7 +106,7 @@
             color: black; /* 学生按钮里的名字始终是黑色字体 */
             width: 100%;
             height: 40px;
-            font-size: 12px;
+            font-size: 14px;
             padding: 5px;
             text-align: center;
             margin: 0;
@@ -112,6 +117,10 @@
     <div id="app">
         <div class="header">
             <h1>五4班作业订正系统</h1>
+            <div class="poem">
+                百川东到海，何时复西归？<br>
+                少壮不努力，老大徒伤悲。
+            </div>
             <div class="current-time">{{ currentTime }}</div>
         </div>
         
@@ -168,7 +177,7 @@
         
         <div class="students-grid">
             <el-button
-                v-for="student in students"
+                v-for="student in sortedStudents"
                 :key="student.id"
                 :class="getStudentButtonClass(student)"
                 @click="toggleStudentStatus(student)"
@@ -263,6 +272,17 @@
                     unfinishedStudentsDialogVisible: false,
                     unfinishedStudents: []
                 };
+            },
+            computed: {
+                sortedStudents() {
+                    // 创建学生列表的副本并按学号排序
+                    return [...this.students].sort((a, b) => {
+                        return a.studentNumber.localeCompare(b.studentNumber, undefined, {
+                            numeric: true,
+                            sensitivity: 'base'
+                        });
+                    });
+                }
             },
             mounted() {
                 this.updateTime();
