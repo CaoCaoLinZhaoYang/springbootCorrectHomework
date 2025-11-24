@@ -4,9 +4,11 @@ import com.example.springbootcorrecthomework.entity.HomeworkContent;
 import com.example.springbootcorrecthomework.service.HomeworkContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/homework-contents")
@@ -17,10 +19,15 @@ public class HomeworkContentController {
     private HomeworkContentService homeworkContentService;
     
     @GetMapping
-    public HomeworkContent getHomeworkContent(
+    public ResponseEntity<HomeworkContent> getHomeworkContent(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
             @RequestParam Integer typeId) {
-        return homeworkContentService.findByDateAndType(date, typeId);
+        HomeworkContent content = homeworkContentService.findByDateAndType(date, typeId);
+        if (content != null) {
+            return ResponseEntity.ok(content);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
     
     @PostMapping

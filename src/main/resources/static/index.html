@@ -495,7 +495,12 @@
                     // 加载作业内容
                     axios.get(`/api/homework-contents?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
-                            this.homeworkContent = response.data ? response.data.content : '';
+                            // 检查响应状态码，204表示无内容
+                            if (response.status === 204) {
+                                this.homeworkContent = '';
+                            } else {
+                                this.homeworkContent = response.data ? response.data.content : '';
+                            }
                         })
                         .catch(() => {
                             this.homeworkContent = '';
@@ -544,7 +549,14 @@
                 saveHomeworkContent() {
                     axios.get(`/api/homework-contents?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
-                            const content = response.data || {};
+                            // 检查响应状态码，204表示无内容
+                            let content;
+                            if (response.status === 204) {
+                                content = {};
+                            } else {
+                                content = response.data || {};
+                            }
+                            
                             content.date = this.currentDate;
                             content.homeworkTypeId = this.selectedType;
                             content.content = this.homeworkContent;
@@ -633,6 +645,14 @@
                                 const record = studentHistoryRecords.find(r => r.date === date);
                                 if (record) {
                                     return axios.get(`/api/homework-contents?date=${formattedDate}&typeId=${record.homeworkTypeId}`)
+                                        .then(response => {
+                                            // 检查响应状态码，204表示无内容
+                                            if (response.status === 204) {
+                                                return { data: null };
+                                            } else {
+                                                return response;
+                                            }
+                                        })
                                         .catch(() => ({ data: null })); // 处理没有作业内容的情况
                                 }
                                 return Promise.resolve({ data: null });
@@ -648,7 +668,9 @@
                                             recordDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
                                         }
                                         const key = `${recordDate}-${record.homeworkTypeId}`;
-                                        const contentData = results[index].data;
+                                        // 检查results[index]是否存在再访问其data属性
+                                        const result = results[index];
+                                        const contentData = result && result.data;
                                         contentMap[key] = contentData ? contentData.content : '';
                                     });
                                     
@@ -678,7 +700,9 @@
                                     }
                                 });
                         })
-                        .catch(() => {
+                        .catch((e) => {
+                            console.error('22222222');
+                            console.error(e);
                             this.$message({
                                 type: 'error',
                                 message: '获取数据失败1'
@@ -717,6 +741,14 @@
                             const dates = [...new Set(unfinishedStudents.map(s => s.formattedDate))];
                             const contentPromises = dates.map(date => 
                                 axios.get(`/api/homework-contents?date=${date}&typeId=${this.selectedType}`)
+                                    .then(response => {
+                                        // 检查响应状态码，204表示无内容
+                                        if (response.status === 204) {
+                                            return { data: null };
+                                        } else {
+                                            return response;
+                                        }
+                                    })
                                     .catch(() => ({ data: null })) // 处理没有作业内容的情况
                             );
                             
@@ -724,7 +756,9 @@
                                 .then(results => {
                                     const contentMap = {};
                                     dates.forEach((date, index) => {
-                                        const contentData = results[index].data;
+                                        // 检查results[index]是否存在再访问其data属性
+                                        const result = results[index];
+                                        const contentData = result && result.data;
                                         contentMap[date] = contentData ? contentData.content : '';
                                     });
                                     
