@@ -490,7 +490,7 @@
                 },
                 handleSelectStudent(item) {
                     // 获取学生历史欠交记录
-                    axios.get(`/api/correction-records/student-unfinished?studentId=${item.id}&typeId=${this.selectedType}`)
+                    axios.get(`/api/correction-records/student-unfinished-all-types?studentId=${item.id}`)
                         .then(response => {
                             // 过滤掉未来日期的记录
                             const today = new Date();
@@ -520,22 +520,27 @@
                                     const d = new Date(date);
                                     formattedDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
                                 }
-                                return axios.get(`/api/homework-contents?date=${formattedDate}&typeId=${this.selectedType}`)
-                                    .catch(() => ({ data: null })); // 处理没有作业内容的情况
+                                // 为每条记录获取对应的作业类型内容
+                                const record = studentHistoryRecords.find(r => r.date === date);
+                                if (record) {
+                                    return axios.get(`/api/homework-contents?date=${formattedDate}&typeId=${record.homeworkTypeId}`)
+                                        .catch(() => ({ data: null })); // 处理没有作业内容的情况
+                                }
+                                return Promise.resolve({ data: null });
                             });
                             
                             return Promise.all(contentPromises)
                                 .then(results => {
                                     const contentMap = {};
-                                    dates.forEach((date, index) => {
-                                        // 确保使用格式化的日期作为键
-                                        let formattedDate = date;
-                                        if (typeof date === 'string' && date.includes('T')) {
-                                            const d = new Date(date);
-                                            formattedDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+                                    studentHistoryRecords.forEach((record, index) => {
+                                        let recordDate = record.date;
+                                        if (typeof recordDate === 'string' && recordDate.includes('T')) {
+                                            const d = new Date(recordDate);
+                                            recordDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
                                         }
+                                        const key = `${recordDate}-${record.homeworkTypeId}`;
                                         const contentData = results[index].data;
-                                        contentMap[formattedDate] = contentData ? contentData.content : '';
+                                        contentMap[key] = contentData ? contentData.content : '';
                                     });
                                     
                                     // 将作业内容添加到学生记录中
@@ -545,9 +550,10 @@
                                             const d = new Date(recordDate);
                                             recordDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
                                         }
+                                        const key = `${recordDate}-${record.homeworkTypeId}`;
                                         return {
                                             ...record,
-                                            content: contentMap[recordDate] || ''
+                                            content: contentMap[key] || ''
                                         };
                                     });
                                     
@@ -556,7 +562,7 @@
                                     } else {
                                         this.$message({
                                             type: 'info',
-                                            message: '该学生在当前作业类型下没有欠交记录'
+                                            message: '该学生在所有作业类型下都没有欠交记录'
                                         });
                                     }
                                 });

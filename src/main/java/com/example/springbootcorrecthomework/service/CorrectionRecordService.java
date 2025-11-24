@@ -54,6 +54,10 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
         return correctionRecordRepository.findUnfinishedByStudentAndType(studentId, homeworkTypeId);
     }
     
+    public List<CorrectionRecord> findUnfinishedByStudentAllTypes(Integer studentId) {
+        return correctionRecordRepository.findUnfinishedByStudentAllTypes(studentId);
+    }
+    
     public List<UnfinishedStudentDTO> findUnfinishedStudentsByType(Integer homeworkTypeId) {
         return correctionRecordRepository.findUnfinishedStudentsByType(homeworkTypeId);
     }
