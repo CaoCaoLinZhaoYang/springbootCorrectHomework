@@ -104,6 +104,8 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     
     public void resetByDateAndType(Date date, Integer homeworkTypeId) {
         correctionRecordRepository.resetByDateAndType(date, homeworkTypeId);
+        // 重置后检查是否需要清除作业布置记录
+        checkAndRemoveAssignmentIfNecessary(date, homeworkTypeId);
     }
     
     public Map<String, Integer> getStatisticsByDateAndType(Date date, Integer homeworkTypeId) {
