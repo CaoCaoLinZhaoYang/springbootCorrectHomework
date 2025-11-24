@@ -65,7 +65,9 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     
     // 修复save方法与父类方法签名冲突的问题
     public CorrectionRecord saveRecord(CorrectionRecord correctionRecord) {
-        if (correctionRecord.getId() != null) {
+        boolean isNewRecord = correctionRecord.getId() == null;
+        
+        if (!isNewRecord) {
             correctionRecordRepository.updateById(correctionRecord);
         } else {
             correctionRecordRepository.insert(correctionRecord);
@@ -74,9 +76,26 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
         // 如果记录是corrected=true，则确保作业已被标记为布置
         if (correctionRecord.getCorrected() != null && correctionRecord.getCorrected()) {
             homeworkAssignmentService.createAssignmentIfNotExists(correctionRecord.getDate(), correctionRecord.getHomeworkTypeId());
+        } else if (correctionRecord.getCorrected() != null && !correctionRecord.getCorrected()) {
+            // 如果记录是corrected=false，检查是否需要移除作业布置记录
+            checkAndRemoveAssignmentIfNecessary(correctionRecord.getDate(), correctionRecord.getHomeworkTypeId());
         }
         
         return correctionRecord;
+    }
+    
+    /**
+     * 检查并移除作业布置记录（如果必要）
+     * 当某天某类型作业的所有订正记录都为false时，移除该作业布置记录
+     */
+    private void checkAndRemoveAssignmentIfNecessary(Date date, Integer homeworkTypeId) {
+        // 检查该天该类型作业是否还有订正完成的记录
+        int correctedCount = correctionRecordRepository.countCorrectedRecordsByDateAndType(date, homeworkTypeId);
+        
+        // 如果没有订正完成的记录，移除作业布置记录
+        if (correctedCount == 0) {
+            homeworkAssignmentService.deleteByDateAndType(date, homeworkTypeId);
+        }
     }
     
     public void resetByDateAndType(Date date, Integer homeworkTypeId) {

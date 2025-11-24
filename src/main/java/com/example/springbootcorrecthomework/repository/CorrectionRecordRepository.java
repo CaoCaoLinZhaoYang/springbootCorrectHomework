@@ -32,12 +32,18 @@ public interface CorrectionRecordRepository extends BaseMapper<CorrectionRecord>
     @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId} AND corrected = true")
     int countFinishedRecordsByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
     
-    @Update("UPDATE correction_records SET corrected = false WHERE date = #{date} AND homework_type_id = #{homeworkTypeId}")
-    int resetByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
+    @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId} AND corrected = false")
+    int countUnfinishedByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
     
     @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId} AND corrected = true")
     int countFinishedByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
     
-    @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId} AND corrected = false")
-    int countUnfinishedByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
+    @Update("UPDATE correction_records SET corrected = false WHERE date = #{date} AND homework_type_id = #{homeworkTypeId}")
+    int resetByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
+    
+    @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId}")
+    int countRecordsByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
+    
+    @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId} AND corrected = true")
+    int countCorrectedRecordsByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
 }
