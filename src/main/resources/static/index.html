@@ -229,10 +229,41 @@
         .el-date-picker {
             border-radius: 15px;
         }
+        /* 加载指示器样式 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-size: 24px;
+            color: #409EFF;
+        }
+        .loading-content {
+            text-align: center;
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #409EFF;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <div id="app">
+    <div id="app" v-loading.fullscreen.lock="loading">
         <div class="header">
             <h1>五4班作业订正系统</h1>
             <div class="poem">
@@ -398,6 +429,7 @@
             el: '#app',
             data() {
                 return {
+                    loading: true,
                     currentTime: '',
                     currentDate: this.getCurrentDate(),
                     students: [],
@@ -473,13 +505,13 @@
                     this.loadData();
                 },
                 loadStudents() {
-                    axios.get('/api/students')
+                    return axios.get('/api/students')
                         .then(response => {
                             this.students = response.data;
                         });
                 },
                 loadHomeworkTypes() {
-                    axios.get('/api/homework-types')
+                    return axios.get('/api/homework-types')
                         .then(response => {
                             this.homeworkTypes = response.data;
                         });
@@ -511,6 +543,8 @@
                         .then(response => {
                             this.finishedCount = response.data.finished;
                             this.unfinishedCount = response.data.unfinished;
+                            // 数据加载完成，隐藏loading
+                            this.loading = false;
                         });
                 },
                 getStudentButtonClass(student) {
