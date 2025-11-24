@@ -274,22 +274,20 @@
                 </el-input>
                 
                 <el-button @click="resetStatus" type="warning">重置本页面订正状态</el-button>
-                <el-button @click="showUnfinishedStudents">本作业历史欠交学生</el-button>
-            </div>
-            
-            <div class="control-group">
+                <el-button @click="showUnfinishedStudents">本作业欠交名单</el-button>
+                
+                <span style="margin-left: 10px; font-weight: bold;">彻查学生作业：</span>
                 <el-autocomplete
                     v-model="searchKeyword"
                     :fetch-suggestions="querySearch"
                     placeholder="请输入学号或姓名"
                     @select="handleSelectStudent"
-                    style="width: 300px;"
+                    style="width: 150px;"
                     :trigger-on-focus="true">
                     <template slot-scope="{ item }">
                         <div class="name">{{ item.studentNumber }} - {{ item.name }}</div>
                     </template>
                 </el-autocomplete>
-                
             </div>
         </div>
         
@@ -323,6 +321,12 @@
         
         <!-- 学生历史欠交记录对话框 -->
         <el-dialog title="学生历史欠交记录" :visible.sync="studentHistoryDialogVisible" width="60%">
+            <div style="margin-bottom: 10px;">
+                <el-button @click="sortStudentHistory('date', 'asc')">日期升序</el-button>
+                <el-button @click="sortStudentHistory('date', 'desc')">日期降序</el-button>
+                <el-button @click="sortStudentHistory('typeName', 'asc')">作业类型升序</el-button>
+                <el-button @click="sortStudentHistory('typeName', 'desc')">作业类型降序</el-button>
+            </div>
             <el-table :data="studentHistoryRecords" style="width: 100%">
                 <el-table-column prop="date" label="日期" width="120">
                     <template slot-scope="scope">
@@ -663,6 +667,8 @@
                                     });
                                     
                                     if (this.studentHistoryRecords.length > 0) {
+                                        // 默认按日期升序排序
+                                        this.sortStudentHistory('date', 'asc');
                                         this.studentHistoryDialogVisible = true;
                                     } else {
                                         this.$message({
@@ -675,7 +681,7 @@
                         .catch(() => {
                             this.$message({
                                 type: 'error',
-                                message: '获取数据失败'
+                                message: '获取数据失败1'
                             });
                         });
                 },
@@ -737,7 +743,7 @@
                             console.error('获取未完成学生数据失败:', error);
                             this.$message({
                                 type: 'error',
-                                message: '获取数据失败'
+                                message: '获取数据失败2'
                             });
                         });
                 },
@@ -794,6 +800,34 @@
                             // 刷新主页面数据
                             this.loadData();
                         });
+                },
+                sortStudentHistory(field, order) {
+                    this.studentHistoryRecords.sort((a, b) => {
+                        let result = 0;
+                        
+                        if (field === 'date') {
+                            // 日期排序
+                            result = new Date(a.date) - new Date(b.date);
+                            // 如果日期相同，按作业类型ID升序排列
+                            if (result === 0) {
+                                result = a.homeworkTypeId - b.homeworkTypeId;
+                            }
+                        } else if (field === 'typeName') {
+                            // 作业类型ID排序
+                            result = a.homeworkTypeId - b.homeworkTypeId;
+                            // 如果作业类型ID相同，按日期升序排列
+                            if (result === 0) {
+                                result = new Date(a.date) - new Date(b.date);
+                            }
+                        }
+                        
+                        // 如果是降序，反转结果
+                        if (order === 'desc') {
+                            result = -result;
+                        }
+                        
+                        return result;
+                    });
                 },
                 markUnfinishedStudentAsFinished(row) {
                     // 标记历史欠交学生为已完成
