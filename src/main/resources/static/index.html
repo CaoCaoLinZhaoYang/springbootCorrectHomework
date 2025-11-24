@@ -52,32 +52,23 @@
         .control-group label {
             font-weight: bold;
         }
-        .students-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-        .student-btn {
-            height: 40px;
-            font-size: 14px;
-            color: black; /* 学生按钮里的名字始终是黑色字体 */
-            width: 100%;
-            box-sizing: border-box;
-            padding: 5px;
-            text-align: center;
-            margin: 0;
+        .main-content {
+            display: flex;
+            gap: 20px;
         }
         .stats {
-            display: flex;
-            justify-content: space-around;
+            width: 120px;
             background-color: white;
-            padding: 15px;
+            padding: 15px 10px;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .stat-item {
             text-align: center;
+            margin-bottom: 20px;
+        }
+        .stat-item:last-child {
+            margin-bottom: 0;
         }
         .stat-number {
             font-size: 24px;
@@ -89,12 +80,31 @@
         .unfinished {
             color: #F56C6C;
         }
+        .students-section {
+            flex: 1;
+        }
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .student-btn {
+            height: 60px;
+            font-size: 14px;
+            color: black; /* 学生按钮里的名字始终是黑色字体 */
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+            text-align: center;
+            margin: 0;
+        }
         .el-button.unfinished {
             background-color: #F56C6C;
             border-color: #F56C6C;
             color: black; /* 学生按钮里的名字始终是黑色字体 */
             width: 100%;
-            height: 40px;
+            height: 60px;
             font-size: 14px;
             padding: 5px;
             text-align: center;
@@ -105,11 +115,14 @@
             border-color: #67C23A;
             color: black; /* 学生按钮里的名字始终是黑色字体 */
             width: 100%;
-            height: 40px;
+            height: 60px;
             font-size: 14px;
             padding: 5px;
             text-align: center;
             margin: 0;
+        }
+        .spacer {
+            width: 120px;
         }
     </style>
 </head>
@@ -152,7 +165,7 @@
                     v-model="homeworkContent"
                     placeholder="请输入作业内容"
                     style="width: 300px;"
-                    @keyup.enter.native="saveHomeworkContent">
+                    @focus="showHomeworkContentDialog">
                 </el-input>
                 
                 <el-button @click="resetStatus" type="warning">重置本页面订正状态</el-button>
@@ -175,26 +188,32 @@
             </div>
         </div>
         
-        <div class="students-grid">
-            <el-button
-                v-for="student in sortedStudents"
-                :key="student.id"
-                :class="getStudentButtonClass(student)"
-                @click="toggleStudentStatus(student)"
-                class="student-btn">
-                {{ student.studentNumber }}.{{ student.name }}
-            </el-button>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-number finished">{{ finishedCount }}</div>
-                <div>已订正</div>
+        <div class="main-content">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number finished">{{ finishedCount }}</div>
+                    <div>已订正</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number unfinished">{{ unfinishedCount }}</div>
+                    <div>未订正</div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-number unfinished">{{ unfinishedCount }}</div>
-                <div>未订正</div>
+            
+            <div class="students-section">
+                <div class="students-grid">
+                    <el-button
+                        v-for="student in sortedStudents"
+                        :key="student.id"
+                        :class="getStudentButtonClass(student)"
+                        @click="toggleStudentStatus(student)"
+                        class="student-btn">
+                        {{ student.studentNumber }}.{{ student.name }}
+                    </el-button>
+                </div>
             </div>
+            
+            <div class="spacer"></div>
         </div>
         
         <!-- 学生历史欠交记录对话框 -->
@@ -246,6 +265,20 @@
                 <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip></el-table-column>
             </el-table>
         </el-dialog>
+        
+        <!-- 作业内容输入对话框 -->
+        <el-dialog title="输入作业内容" :visible.sync="homeworkContentDialogVisible" width="50%">
+            <el-input
+                type="textarea"
+                :rows="4"
+                placeholder="请输入作业内容"
+                v-model="tempHomeworkContent">
+            </el-input>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="homeworkContentDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveHomeworkContentFromDialog">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
@@ -262,6 +295,7 @@
                     homeworkTypes: [],
                     selectedType: 1,
                     homeworkContent: '',
+                    tempHomeworkContent: '', // 用于弹窗中的临时作业内容
                     correctionRecords: [],
                     finishedCount: 0,
                     unfinishedCount: 0,
@@ -270,7 +304,8 @@
                     studentHistoryDialogVisible: false,
                     studentHistoryRecords: [],
                     unfinishedStudentsDialogVisible: false,
-                    unfinishedStudents: []
+                    unfinishedStudents: [],
+                    homeworkContentDialogVisible: false // 作业内容弹窗可见性
                 };
             },
             computed: {
@@ -692,6 +727,21 @@
                                 message: '标记失败: ' + error
                             });
                         });
+                },
+                showHomeworkContentDialog() {
+                    // 将当前作业内容复制到临时变量
+                    this.tempHomeworkContent = this.homeworkContent;
+                    // 显示作业内容输入弹窗
+                    this.homeworkContentDialogVisible = true;
+                },
+                
+                saveHomeworkContentFromDialog() {
+                    // 将临时变量的值保存到作业内容
+                    this.homeworkContent = this.tempHomeworkContent;
+                    // 隐藏弹窗
+                    this.homeworkContentDialogVisible = false;
+                    // 保存作业内容到服务器
+                    this.saveHomeworkContent();
                 }
             }
         });
