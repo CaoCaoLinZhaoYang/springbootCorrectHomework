@@ -475,51 +475,14 @@
                                     };
                                 });
                             
-                            // 检查是否有作业记录，如果没有则不显示弹窗
-                            const dates = [...new Set(this.studentHistoryRecords.map(r => r.date))];
-                            const homeworkCheckPromises = dates.map(date => {
-                                // 确保日期格式为 yyyy-MM-dd
-                                let formattedDate = date;
-                                if (typeof date === 'string' && date.includes('T')) {
-                                    // 如果是ISO格式日期，转换为 yyyy-MM-dd
-                                    const d = new Date(date);
-                                    formattedDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
-                                }
-                                return axios.get(`/api/correction-records/has-homework?date=${formattedDate}&typeId=${this.selectedType}`);
-                            });
-                            
-                            return Promise.all(homeworkCheckPromises)
-                                .then(results => {
-                                    const hasHomeworkMap = {};
-                                    dates.forEach((date, index) => {
-                                        // 确保使用格式化的日期作为键
-                                        let formattedDate = date;
-                                        if (typeof date === 'string' && date.includes('T')) {
-                                            const d = new Date(date);
-                                            formattedDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
-                                        }
-                                        hasHomeworkMap[formattedDate] = results[index].data;
-                                    });
-                                    
-                                    // 过滤掉没有作业记录的日期
-                                    this.studentHistoryRecords = this.studentHistoryRecords.filter(record => {
-                                        let recordDate = record.date;
-                                        if (typeof recordDate === 'string' && recordDate.includes('T')) {
-                                            const d = new Date(recordDate);
-                                            recordDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
-                                        }
-                                        return hasHomeworkMap[recordDate];
-                                    });
-                                    
-                                    if (this.studentHistoryRecords.length > 0) {
-                                        this.studentHistoryDialogVisible = true;
-                                    } else {
-                                        this.$message({
-                                            type: 'info',
-                                            message: '该学生在当前作业类型下没有欠交记录'
-                                        });
-                                    }
+                            if (this.studentHistoryRecords.length > 0) {
+                                this.studentHistoryDialogVisible = true;
+                            } else {
+                                this.$message({
+                                    type: 'info',
+                                    message: '该学生在当前作业类型下没有欠交记录'
                                 });
+                            }
                         })
                         .catch(() => {
                             this.$message({

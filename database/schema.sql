@@ -30,6 +30,16 @@ CREATE TABLE homework_contents (
     UNIQUE KEY unique_date_type (date, homework_type_id)
 );
 
+-- 作业布置记录表
+CREATE TABLE homework_assignments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    date DATE NOT NULL COMMENT '日期',
+    homework_type_id INT NOT NULL COMMENT '作业类型ID',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (homework_type_id) REFERENCES homework_types(id),
+    UNIQUE KEY unique_date_type (date, homework_type_id)
+);
+
 -- 订正记录表
 CREATE TABLE correction_records (
     id INT PRIMARY KEY AUTO_INCREMENT,

@@ -3,8 +3,10 @@ package com.example.springbootcorrecthomework.service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
+import com.example.springbootcorrecthomework.entity.HomeworkAssignment;
 import com.example.springbootcorrecthomework.repository.CorrectionRecordRepository;
 import com.example.springbootcorrecthomework.repository.StudentRepository;
+import com.example.springbootcorrecthomework.service.HomeworkAssignmentService;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -17,11 +19,14 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     
     private final CorrectionRecordRepository correctionRecordRepository;
     private final StudentRepository studentRepository;
+    private final HomeworkAssignmentService homeworkAssignmentService;
     
     public CorrectionRecordService(CorrectionRecordRepository correctionRecordRepository, 
-                                   StudentRepository studentRepository) {
+                                   StudentRepository studentRepository,
+                                   HomeworkAssignmentService homeworkAssignmentService) {
         this.correctionRecordRepository = correctionRecordRepository;
         this.studentRepository = studentRepository;
+        this.homeworkAssignmentService = homeworkAssignmentService;
     }
     
     public List<CorrectionRecord> findByDateAndType(Date date, Integer homeworkTypeId) {
@@ -54,8 +59,8 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     }
     
     public boolean hasHomeworkRecords(Date date, Integer homeworkTypeId) {
-        // 判断是否有学生完成订正，如果有则表示布置了作业
-        return correctionRecordRepository.countFinishedRecordsByDateAndType(date, homeworkTypeId) > 0;
+        // 判断某天某类型作业是否布置了
+        return homeworkAssignmentService.isHomeworkAssigned(date, homeworkTypeId);
     }
     
     // 修复save方法与父类方法签名冲突的问题
@@ -65,6 +70,12 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
         } else {
             correctionRecordRepository.insert(correctionRecord);
         }
+        
+        // 如果记录是corrected=true，则确保作业已被标记为布置
+        if (correctionRecord.getCorrected() != null && correctionRecord.getCorrected()) {
+            homeworkAssignmentService.createAssignmentIfNotExists(correctionRecord.getDate(), correctionRecord.getHomeworkTypeId());
+        }
+        
         return correctionRecord;
     }
     
