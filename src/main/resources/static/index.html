@@ -523,11 +523,30 @@
                 },
                 sortUnfinishedStudents(field, order) {
                     this.unfinishedStudents.sort((a, b) => {
-                        if (order === 'asc') {
-                            return a[field] < b[field] ? -1 : 1;
-                        } else {
-                            return a[field] > b[field] ? -1 : 1;
+                        let result = 0;
+                        
+                        if (field === 'studentNumber') {
+                            // 学号按数值大小排序
+                            const numA = parseInt(a.studentNumber);
+                            const numB = parseInt(b.studentNumber);
+                            result = numA - numB;
+                        } else if (field === 'date') {
+                            // 日期排序
+                            result = new Date(a.date) - new Date(b.date);
+                            // 如果日期相同，按学号升序排列
+                            if (result === 0) {
+                                const numA = parseInt(a.studentNumber);
+                                const numB = parseInt(b.studentNumber);
+                                result = numA - numB;
+                            }
                         }
+                        
+                        // 如果是降序，反转结果
+                        if (order === 'desc') {
+                            result = -result;
+                        }
+                        
+                        return result;
                     });
                 },
                 markAsFinished(row) {
