@@ -351,7 +351,7 @@
         </div>
         
         <!-- 学生历史欠交记录对话框 -->
-        <el-dialog title="学生历史欠交记录" :visible.sync="studentHistoryDialogVisible" width="60%">
+        <el-dialog :title="'学生历史欠交记录 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" width="60%">
             <div style="margin-bottom: 10px;">
                 <el-button @click="sortStudentHistory('date', 'asc')">日期升序</el-button>
                 <el-button @click="sortStudentHistory('date', 'desc')">日期降序</el-button>
@@ -449,7 +449,8 @@
                     studentHistoryRecords: [],
                     unfinishedStudentsDialogVisible: false,
                     unfinishedStudents: [],
-                    homeworkContentDialogVisible: false // 作业内容弹窗可见性
+                    homeworkContentDialogVisible: false, // 作业内容弹窗可见性
+                    selectedStudentName: '' // 当前选中学生的名字
                 };
             },
             computed: {
@@ -747,6 +748,8 @@
                                     });
 
                                     if (this.studentHistoryRecords.length > 0) {
+                                        // 设置选中学生的名字
+                                        this.selectedStudentName = item.name;
                                         // 默认按日期升序排序
                                         this.sortStudentHistory('date', 'asc');
                                         this.studentHistoryDialogVisible = true;
