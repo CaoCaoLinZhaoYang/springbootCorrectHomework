@@ -463,11 +463,32 @@
                     });
                 }
             },
+            watch: {
+                currentDate(newVal) {
+                    sessionStorage.setItem('selectedDate', newVal);
+                },
+                selectedType(newVal) {
+                    sessionStorage.setItem('selectedType', newVal);
+                }
+            },
             mounted() {
                 this.updateTime();
                 setInterval(this.updateTime, 1000);
                 this.loadStudents();
                 this.loadHomeworkTypes();
+                
+                // 从sessionStorage恢复保存的日期和作业类型
+                const savedDate = sessionStorage.getItem('selectedDate');
+                const savedType = sessionStorage.getItem('selectedType');
+                
+                if (savedDate) {
+                    this.currentDate = savedDate;
+                }
+                
+                if (savedType) {
+                    this.selectedType = parseInt(savedType);
+                }
+                
                 this.loadData();
             },
             methods: {
