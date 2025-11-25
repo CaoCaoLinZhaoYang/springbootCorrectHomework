@@ -421,9 +421,12 @@
         </el-dialog>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!--    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>-->
+<!--    <script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
+    <script src="js/vue.js"></script>
+    <script src="js/element-ui.js"></script>
+    <script src="js/axios.min.js"></script>
     <script>
         new Vue({
             el: '#app',
@@ -523,7 +526,7 @@
                             this.correctionRecords = response.data;
                             this.updateStats();
                         });
-                    
+
                     // 加载作业内容
                     axios.get(`/api/homework-contents?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
@@ -556,7 +559,7 @@
                 },
                 toggleStudentStatus(student) {
                     let record = this.correctionRecords.find(r => r.studentId === student.id);
-                    
+
                     if (!record) {
                         // 创建新记录
                         record = {
@@ -565,7 +568,7 @@
                             homeworkTypeId: this.selectedType,
                             corrected: true
                         };
-                        
+
                         axios.post('/api/correction-records', record)
                             .then(response => {
                                 this.correctionRecords.push(response.data);
@@ -590,11 +593,11 @@
                             } else {
                                 content = response.data || {};
                             }
-                            
+
                             content.date = this.currentDate;
                             content.homeworkTypeId = this.selectedType;
                             content.content = this.homeworkContent;
-                            
+
                             return axios.post('/api/homework-contents', content);
                         })
                         .catch(() => {
@@ -636,7 +639,7 @@
                         cb(sortedStudents);
                         return;
                     }
-                    
+
                     // 当有查询字符串时，按原有逻辑过滤学生
                     axios.get(`/api/students/search?keyword=${queryString}`)
                         .then(response => {
@@ -650,7 +653,7 @@
                             // 过滤掉未来日期的记录
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
-                            
+
                             let studentHistoryRecords = response.data
                                 .filter(record => {
                                     const recordDate = new Date(record.date);
@@ -664,7 +667,7 @@
                                         typeName: type ? type.name : ''
                                     };
                                 });
-                            
+
                             // 为每个日期获取作业内容
                             const dates = [...new Set(studentHistoryRecords.map(r => r.date))];
                             const contentPromises = dates.map(date => {
@@ -691,7 +694,7 @@
                                 }
                                 return Promise.resolve({ data: null });
                             });
-                            
+
                             return Promise.all(contentPromises)
                                 .then(results => {
                                     const contentMap = {};
@@ -707,7 +710,7 @@
                                         const contentData = result && result.data;
                                         contentMap[key] = contentData ? contentData.content : '';
                                     });
-                                    
+
                                     // 将作业内容添加到学生记录中
                                     this.studentHistoryRecords = studentHistoryRecords.map(record => {
                                         let recordDate = record.date;
@@ -721,7 +724,7 @@
                                             content: contentMap[key] || ''
                                         };
                                     });
-                                    
+
                                     if (this.studentHistoryRecords.length > 0) {
                                         // 默认按日期升序排序
                                         this.sortStudentHistory('date', 'asc');
@@ -755,12 +758,12 @@
                                     const date = new Date(item.date);
                                     formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
                                 }
-                                
+
                                 // 计算星期几
                                 const dateObj = new Date(formattedDate);
                                 const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
                                 const weekDay = weekDays[dateObj.getDay()];
-                                
+
                                 return {
                                     date: formattedDate,
                                     weekDay: weekDay,
@@ -770,10 +773,10 @@
                                     formattedDate: formattedDate // 保存格式化后的日期用于查询作业内容
                                 };
                             });
-                            
+
                             // 为每个日期获取作业内容
                             const dates = [...new Set(unfinishedStudents.map(s => s.formattedDate))];
-                            const contentPromises = dates.map(date => 
+                            const contentPromises = dates.map(date =>
                                 axios.get(`/api/homework-contents?date=${date}&typeId=${this.selectedType}`)
                                     .then(response => {
                                         // 检查响应状态码，204表示无内容
@@ -785,7 +788,7 @@
                                     })
                                     .catch(() => ({ data: null })) // 处理没有作业内容的情况
                             );
-                            
+
                             return Promise.all(contentPromises)
                                 .then(results => {
                                     const contentMap = {};
@@ -795,13 +798,13 @@
                                         const contentData = result && result.data;
                                         contentMap[date] = contentData ? contentData.content : '';
                                     });
-                                    
+
                                     // 将作业内容添加到学生记录中
                                     this.unfinishedStudents = unfinishedStudents.map(student => ({
                                         ...student,
                                         content: contentMap[student.formattedDate] || ''
                                     }));
-                                    
+
                                     // 默认按日期升序排序
                                     this.sortUnfinishedStudents('date', 'asc');
                                     this.unfinishedStudentsDialogVisible = true;
@@ -818,7 +821,7 @@
                 sortUnfinishedStudents(field, order) {
                     this.unfinishedStudents.sort((a, b) => {
                         let result = 0;
-                        
+
                         if (field === 'studentNumber') {
                             // 学号按数值大小排序
                             const numA = parseInt(a.studentNumber);
@@ -834,12 +837,12 @@
                                 result = numA - numB;
                             }
                         }
-                        
+
                         // 如果是降序，反转结果
                         if (order === 'desc') {
                             result = -result;
                         }
-                        
+
                         return result;
                     });
                 },
@@ -851,20 +854,20 @@
                                 type: 'success',
                                 message: '标记成功!'
                             });
-                            
+
                             // 从当前列表中移除该记录
-                            const index = this.studentHistoryRecords.findIndex(item => 
+                            const index = this.studentHistoryRecords.findIndex(item =>
                                 item.id === row.id
                             );
                             if (index > -1) {
                                 this.studentHistoryRecords.splice(index, 1);
                             }
-                            
+
                             // 如果所有记录都已标记完成，关闭弹窗
                             if (this.studentHistoryRecords.length === 0) {
                                 this.studentHistoryDialogVisible = false;
                             }
-                            
+
                             // 刷新主页面数据
                             this.loadData();
                         });
@@ -872,7 +875,7 @@
                 sortStudentHistory(field, order) {
                     this.studentHistoryRecords.sort((a, b) => {
                         let result = 0;
-                        
+
                         if (field === 'date') {
                             // 日期排序
                             result = new Date(a.date) - new Date(b.date);
@@ -888,12 +891,12 @@
                                 result = new Date(a.date) - new Date(b.date);
                             }
                         }
-                        
+
                         // 如果是降序，反转结果
                         if (order === 'desc') {
                             result = -result;
                         }
-                        
+
                         return result;
                     });
                 },
@@ -916,19 +919,19 @@
                         })
                         .then(() => {
                             // 从当前列表中移除该记录
-                            const index = this.unfinishedStudents.findIndex(item => 
-                                item.date === row.date && 
+                            const index = this.unfinishedStudents.findIndex(item =>
+                                item.date === row.date &&
                                 item.studentNumber === row.studentNumber
                             );
                             if (index > -1) {
                                 this.unfinishedStudents.splice(index, 1);
                             }
-                            
+
                             // 如果标记的是当前日期的记录，也需要更新主页面的数据
                             if (row.date === this.currentDate) {
                                 this.loadData();
                             }
-                            
+
                             this.$message({
                                 type: 'success',
                                 message: '标记成功!'
@@ -947,7 +950,7 @@
                     // 显示作业内容输入弹窗
                     this.homeworkContentDialogVisible = true;
                 },
-                
+
                 saveHomeworkContentFromDialog() {
                     // 将临时变量的值保存到作业内容
                     this.homeworkContent = this.tempHomeworkContent;
