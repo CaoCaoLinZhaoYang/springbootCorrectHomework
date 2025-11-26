@@ -13,6 +13,10 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
             min-height: 100vh;
         }
+        /* 作业类型下拉框文字居中 */
+        .center-select .el-input__inner {
+            text-align: center;
+        }
         .header {
             background: linear-gradient(90deg, #409EFF, #64b5f6);
             color: white;
@@ -291,7 +295,7 @@
                             </el-date-picker>
                         </div>
                         <div>
-                            <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 120px; margin-top: 5px;">
+                            <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 120px; margin-top: 5px;" class="center-select">
                                 <el-option
                                     v-for="type in homeworkTypes"
                                     :key="type.id"
