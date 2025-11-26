@@ -342,12 +342,12 @@
                     
                     <div style="margin-right: 10px;">
                         <div style="display: flex; margin-bottom: 5px;">
-                            <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">上一天</el-button>
-                            <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">下一天</el-button>
+                            <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">前一天</el-button>
+                            <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">后一天</el-button>
                         </div>
                         <div style="display: flex;">
-                            <el-button @click="prevAssignment" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">上一次</el-button>
-                            <el-button @click="nextAssignment" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">下一次</el-button>
+                            <el-button @click="prevAssignment" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">前一次</el-button>
+                            <el-button @click="nextAssignment" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">后一次</el-button>
                         </div>
                     </div>
                     
@@ -616,7 +616,7 @@
                     this.loadData();
                 },
                 prevAssignment() {
-                    // 获取上一次布置作业的日期
+                    // 获取前一次布置作业的日期
                     axios.get(`/api/correction-records/previous-assigned-date?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
                         .then(response => {
                             if (response.data) {
@@ -630,15 +630,15 @@
                             }
                         })
                         .catch(error => {
-                            console.error('获取上一次布置日期失败:', error);
+                            console.error('获取前一次布置日期失败:', error);
                             this.$message({
                                 type: 'error',
-                                message: '获取上一次布置日期失败'
+                                message: '获取前一次布置日期失败'
                             });
                         });
                 },
                 nextAssignment() {
-                    // 获取下一次布置作业的日期
+                    // 获取后一次布置作业的日期
                     axios.get(`/api/correction-records/next-assigned-date?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
                         .then(response => {
                             if (response.data) {
@@ -652,10 +652,10 @@
                             }
                         })
                         .catch(error => {
-                            console.error('获取下一次布置日期失败:', error);
+                            console.error('获取后一次布置日期失败:', error);
                             this.$message({
                                 type: 'error',
-                                message: '获取下一次布置日期失败'
+                                message: '获取后一次布置日期失败'
                             });
                         });
                 },
