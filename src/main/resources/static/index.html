@@ -419,12 +419,13 @@
         </el-dialog>
         
         <!-- 作业内容输入对话框 -->
-        <el-dialog title="输入作业内容" :visible.sync="homeworkContentDialogVisible" width="50%">
+        <el-dialog title="输入作业内容" :visible.sync="homeworkContentDialogVisible" width="350px" @opened="focusHomeworkContent">
             <el-input
-                type="textarea"
-                :rows="4"
                 placeholder="请输入作业内容"
-                v-model="tempHomeworkContent">
+                v-model="tempHomeworkContent"
+                ref="homeworkContentInput"
+                style="width: 300px;"
+                :maxlength="200">
             </el-input>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="homeworkContentDialogVisible = false">取 消</el-button>
@@ -1029,6 +1030,15 @@
                     this.tempHomeworkContent = this.homeworkContent;
                     // 显示作业内容输入弹窗
                     this.homeworkContentDialogVisible = true;
+                },
+                
+                focusHomeworkContent() {
+                    // 在弹窗打开后聚焦到文本输入框
+                    this.$nextTick(() => {
+                        if (this.$refs.homeworkContentInput) {
+                            this.$refs.homeworkContentInput.focus();
+                        }
+                    });
                 },
 
                 saveHomeworkContentFromDialog() {
