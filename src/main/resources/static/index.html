@@ -279,7 +279,7 @@
         
         <div class="controls">
             <div class="control-group">
-                <div style="display: inline-flex; align-items: flex-start;">
+                <div style="display: flex; align-items: flex-start;">
                     <div style="margin-right: 10px;">
                         <div>
                             <el-date-picker
@@ -306,7 +306,7 @@
                         </div>
                     </div>
                     
-                    <div>
+                    <div style="margin-right: 10px;">
                         <div style="display: flex; margin-bottom: 5px;">
                             <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">上一天</el-button>
                             <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">下一天</el-button>
@@ -316,31 +316,33 @@
                             <el-button @click="nextAssignment" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">下一次</el-button>
                         </div>
                     </div>
+                    
+                    <div style="display: flex; align-items: flex-start;">
+                        <el-input
+                            v-model="homeworkContent"
+                            placeholder="请输入作业内容"
+                            style="width: 300px; margin-right: 10px;"
+                            @focus="showHomeworkContentDialog"
+                            readonly>
+                        </el-input>
+                        
+                        <el-button @click="resetStatus" type="warning" style="margin-right: 10px;">重置本页面订正状态</el-button>
+                        <el-button @click="showUnfinishedStudents" style="margin-right: 10px;">本作业欠交名单</el-button>
+                        
+                        <span style="margin-right: 5px; font-weight: bold; display: flex; align-items: center; padding-top: 8px;">彻查作业：</span>
+                        <el-autocomplete
+                            v-model="searchKeyword"
+                            :fetch-suggestions="querySearch"
+                            placeholder="请输入学号或姓名"
+                            @select="handleSelectStudent"
+                            style="width: 150px;"
+                            :trigger-on-focus="true">
+                            <template slot-scope="{ item }">
+                                <div class="name">{{ item.studentNumber }} - {{ item.name }}</div>
+                            </template>
+                        </el-autocomplete>
+                    </div>
                 </div>
-                
-                <el-input
-                    v-model="homeworkContent"
-                    placeholder="请输入作业内容"
-                    style="width: 300px;"
-                    @focus="showHomeworkContentDialog"
-                    readonly>
-                </el-input>
-                
-                <el-button @click="resetStatus" type="warning">重置本页面订正状态</el-button>
-                <el-button @click="showUnfinishedStudents">本作业欠交名单</el-button>
-                
-                <span style="margin-left: 10px; font-weight: bold;">彻查作业：</span>
-                <el-autocomplete
-                    v-model="searchKeyword"
-                    :fetch-suggestions="querySearch"
-                    placeholder="请输入学号或姓名"
-                    @select="handleSelectStudent"
-                    style="width: 150px;"
-                    :trigger-on-focus="true">
-                    <template slot-scope="{ item }">
-                        <div class="name">{{ item.studentNumber }} - {{ item.name }}</div>
-                    </template>
-                </el-autocomplete>
             </div>
         </div>
         
