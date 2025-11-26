@@ -322,7 +322,8 @@
                     v-model="homeworkContent"
                     placeholder="请输入作业内容"
                     style="width: 300px;"
-                    @focus="showHomeworkContentDialog">
+                    @focus="showHomeworkContentDialog"
+                    readonly>
                 </el-input>
                 
                 <el-button @click="resetStatus" type="warning">重置本页面订正状态</el-button>
