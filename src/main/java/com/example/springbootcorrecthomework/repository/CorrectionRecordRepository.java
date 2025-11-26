@@ -52,4 +52,12 @@ public interface CorrectionRecordRepository extends BaseMapper<CorrectionRecord>
     
     @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId} AND corrected = true")
     int countCorrectedRecordsByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
+    
+    // 获取指定作业类型的上一次布置日期
+    @Select("SELECT MAX(date) FROM homework_assignments WHERE homework_type_id = #{homeworkTypeId} AND date < #{currentDate}")
+    Date findPreviousAssignedDate(@Param("homeworkTypeId") Integer homeworkTypeId, @Param("currentDate") Date currentDate);
+    
+    // 获取指定作业类型的下一次布置日期
+    @Select("SELECT MIN(date) FROM homework_assignments WHERE homework_type_id = #{homeworkTypeId} AND date > #{currentDate}")
+    Date findNextAssignedDate(@Param("homeworkTypeId") Integer homeworkTypeId, @Param("currentDate") Date currentDate);
 }

@@ -69,4 +69,18 @@ public class CorrectionRecordController {
             @RequestParam Integer studentId) {
         return correctionRecordService.findUnfinishedByStudentAllTypes(studentId);
     }
+    
+    @GetMapping("/previous-assigned-date")
+    public Date getPreviousAssignedDate(
+            @RequestParam Integer typeId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date currentDate) {
+        return correctionRecordService.findPreviousAssignedDate(typeId, currentDate);
+    }
+    
+    @GetMapping("/next-assigned-date")
+    public Date getNextAssignedDate(
+            @RequestParam Integer typeId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date currentDate) {
+        return correctionRecordService.findNextAssignedDate(typeId, currentDate);
+    }
 }

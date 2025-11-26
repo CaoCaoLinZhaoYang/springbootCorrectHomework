@@ -114,4 +114,12 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
         statistics.put("unfinished", correctionRecordRepository.countUnfinishedByDateAndType(date, homeworkTypeId));
         return statistics;
     }
+    
+    public Date findPreviousAssignedDate(Integer homeworkTypeId, Date currentDate) {
+        return correctionRecordRepository.findPreviousAssignedDate(homeworkTypeId, currentDate);
+    }
+    
+    public Date findNextAssignedDate(Integer homeworkTypeId, Date currentDate) {
+        return correctionRecordRepository.findNextAssignedDate(homeworkTypeId, currentDate);
+    }
 }

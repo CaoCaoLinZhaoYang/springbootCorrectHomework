@@ -275,20 +275,32 @@
         
         <div class="controls">
             <div class="control-group">
-                <el-date-picker
-                    v-model="currentDate"
-                    type="date"
-                    placeholder="选择日期"
-                    format="yyyy 年 MM 月 dd 日"
-                    value-format="yyyy-MM-dd"
-                    @change="loadData"
-                    :clearable="false">
-                </el-date-picker>
+                <div style="display: inline-flex; align-items: flex-start;">
+                    <el-date-picker
+                        v-model="currentDate"
+                        type="date"
+                        placeholder="选择日期"
+                        format="MM月dd日"
+                        value-format="yyyy-MM-dd"
+                        @change="loadData"
+                        :clearable="false"
+                        style="width: 120px; cursor: pointer;"
+                        :editable="false">
+                    </el-date-picker>
+                    
+                    <div style="margin-left: 10px;">
+                        <div style="display: flex; margin-bottom: 5px;">
+                            <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">上一天</el-button>
+                            <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">下一天</el-button>
+                        </div>
+                        <div style="display: flex;">
+                            <el-button @click="prevAssignment" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">上一次</el-button>
+                            <el-button @click="nextAssignment" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">下一次</el-button>
+                        </div>
+                    </div>
+                </div>
                 
-                <el-button @click="prevDay">上一天</el-button>
-                <el-button @click="nextDay">下一天</el-button>
-                
-                <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型">
+                <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 100px;">
                     <el-option
                         v-for="type in homeworkTypes"
                         :key="type.id"
@@ -528,6 +540,50 @@
                     date.setDate(date.getDate() + 1);
                     this.currentDate = this.formatDate(date);
                     this.loadData();
+                },
+                prevAssignment() {
+                    // 获取上一次布置作业的日期
+                    axios.get(`/api/correction-records/previous-assigned-date?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
+                        .then(response => {
+                            if (response.data) {
+                                this.currentDate = response.data;
+                                this.loadData();
+                            } else {
+                                this.$message({
+                                    type: 'info',
+                                    message: '当前已是该类型作业最早的布置日期'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('获取上一次布置日期失败:', error);
+                            this.$message({
+                                type: 'error',
+                                message: '获取上一次布置日期失败'
+                            });
+                        });
+                },
+                nextAssignment() {
+                    // 获取下一次布置作业的日期
+                    axios.get(`/api/correction-records/next-assigned-date?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
+                        .then(response => {
+                            if (response.data) {
+                                this.currentDate = response.data;
+                                this.loadData();
+                            } else {
+                                this.$message({
+                                    type: 'info',
+                                    message: '当前已是该类型作业最后的布置日期'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('获取下一次布置日期失败:', error);
+                            this.$message({
+                                type: 'error',
+                                message: '获取下一次布置日期失败'
+                            });
+                        });
                 },
                 loadStudents() {
                     return axios.get('/api/students')
