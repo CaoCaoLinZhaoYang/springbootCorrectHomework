@@ -276,19 +276,33 @@
         <div class="controls">
             <div class="control-group">
                 <div style="display: inline-flex; align-items: flex-start;">
-                    <el-date-picker
-                        v-model="currentDate"
-                        type="date"
-                        placeholder="选择日期"
-                        format="MM月dd日"
-                        value-format="yyyy-MM-dd"
-                        @change="loadData"
-                        :clearable="false"
-                        style="width: 120px; cursor: pointer;"
-                        :editable="false">
-                    </el-date-picker>
+                    <div style="margin-right: 10px;">
+                        <div>
+                            <el-date-picker
+                                v-model="currentDate"
+                                type="date"
+                                placeholder="选择日期"
+                                format="MM月dd日"
+                                value-format="yyyy-MM-dd"
+                                @change="loadData"
+                                :clearable="false"
+                                style="width: 120px; cursor: pointer;"
+                                :editable="false">
+                            </el-date-picker>
+                        </div>
+                        <div>
+                            <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 120px; margin-top: 5px;">
+                                <el-option
+                                    v-for="type in homeworkTypes"
+                                    :key="type.id"
+                                    :label="type.name"
+                                    :value="type.id">
+                                </el-option>
+                            </el-select>
+                        </div>
+                    </div>
                     
-                    <div style="margin-left: 10px;">
+                    <div>
                         <div style="display: flex; margin-bottom: 5px;">
                             <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">上一天</el-button>
                             <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">下一天</el-button>
@@ -299,15 +313,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 122px;">
-                    <el-option
-                        v-for="type in homeworkTypes"
-                        :key="type.id"
-                        :label="type.name"
-                        :value="type.id">
-                    </el-option>
-                </el-select>
                 
                 <el-input
                     v-model="homeworkContent"
