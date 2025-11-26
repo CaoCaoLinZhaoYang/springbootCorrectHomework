@@ -163,6 +163,40 @@
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(103, 194, 58, 0.4);
         }
+        .subject-toggle-btn {
+            width: 100%;
+            height: 70px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px;
+            text-align: center;
+            margin: 0;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        .chinese-subject {
+            background: linear-gradient(135deg, #FFA500, #FF8C00); /* 橙色 */
+            border: 2px solid #FFA500;
+        }
+        
+        .math-subject {
+            background: linear-gradient(135deg, #409EFF, #64b5f6); /* 蓝色 */
+            border: 2px solid #409EFF;
+        }
+        
+        .english-subject {
+            background: linear-gradient(135deg, #F56C6C, #ff4242); /* 红色 */
+            border: 2px solid #F56C6C;
+        }
+        
+        .subject-toggle-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        
         .spacer {
             width: 130px;
         }
@@ -329,7 +363,7 @@
                         <el-button @click="resetStatus" type="warning" style="margin-right: 10px;">重置本页面订正状态</el-button>
                         <el-button @click="showUnfinishedStudents" style="margin-right: 10px;">本作业欠交名单</el-button>
                         
-                        <span style="margin-right: 5px; font-weight: bold; display: flex; align-items: center; padding-top: 8px;">彻查作业：</span>
+                        <span style="margin-right: 5px; font-weight: bold; display: flex; align-items: center; padding-top: 8px;">彻查学生作业：</span>
                         <el-autocomplete
                             v-model="searchKeyword"
                             :fetch-suggestions="querySearch"
@@ -355,6 +389,15 @@
                 <div class="stat-item">
                     <div class="stat-number unfinished">{{ unfinishedCount }}</div>
                     <div>未订正</div>
+                </div>
+                <div class="stat-item">
+                    <el-button 
+                        @click="switchSubject" 
+                        class="subject-toggle-btn"
+                        :class="subjectClass"
+                        style="width: 100%; height: 70px; font-size: 18px; font-weight: bold; border-radius: 15px; color: white;">
+                        {{ currentSubject }}
+                    </el-button>
                 </div>
             </div>
             
@@ -475,7 +518,9 @@
                     unfinishedStudentsDialogVisible: false,
                     unfinishedStudents: [],
                     homeworkContentDialogVisible: false, // 作业内容弹窗可见性
-                    selectedStudentName: '' // 当前选中学生的名字
+                    selectedStudentName: '', // 当前选中学生的名字
+                    subjects: ['语文', '数学', '英语'],
+                    subjectIndex: 0
                 };
             },
             computed: {
@@ -487,6 +532,22 @@
                             sensitivity: 'base'
                         });
                     });
+                },
+                currentSubject() {
+                    return this.subjects[this.subjectIndex];
+                },
+                subjectClass() {
+                    // 根据当前科目返回相应的CSS类
+                    switch(this.subjectIndex) {
+                        case 0: // 语文 - 橙色
+                            return 'chinese-subject';
+                        case 1: // 数学 - 蓝色
+                            return 'math-subject';
+                        case 2: // 英语 - 红色
+                            return 'english-subject';
+                        default:
+                            return 'math-subject';
+                    }
                 }
             },
             watch: {
@@ -1060,7 +1121,18 @@
                     this.homeworkContentDialogVisible = false;
                     // 保存作业内容到服务器
                     this.saveHomeworkContent();
-                }
+                },
+                switchSubject() {
+                    // 切换科目
+                    this.subjectIndex = (this.subjectIndex + 1) % this.subjects.length;
+                    // 弹出消息提示
+                    this.$message({
+                        message: '该功能老师还在开发中~',
+                        type: 'info',
+                        duration: 2000
+                    });
+                    // 可以在这里添加其他与科目切换相关的逻辑
+                },
             }
         });
     </script>
