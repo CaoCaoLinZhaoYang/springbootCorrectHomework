@@ -545,10 +545,26 @@
         <!-- 学生历史欠交记录对话框 -->
         <el-dialog :title="'学生历史欠交记录 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" width="60%">
             <div style="margin-bottom: 10px;">
-                <el-button @click="sortStudentHistory('date', 'asc')">日期升序</el-button>
-                <el-button @click="sortStudentHistory('date', 'desc')">日期降序</el-button>
-                <el-button @click="sortStudentHistory('typeName', 'asc')">作业类型升序</el-button>
-                <el-button @click="sortStudentHistory('typeName', 'desc')">作业类型降序</el-button>
+                <el-button 
+                    @click="sortStudentHistory('date', 'asc')"
+                    :type="studentHistorySortField === 'date' && studentHistorySortOrder === 'asc' ? 'primary' : ''">
+                    日期升序
+                </el-button>
+                <el-button 
+                    @click="sortStudentHistory('date', 'desc')"
+                    :type="studentHistorySortField === 'date' && studentHistorySortOrder === 'desc' ? 'primary' : ''">
+                    日期降序
+                </el-button>
+                <el-button 
+                    @click="sortStudentHistory('typeName', 'asc')"
+                    :type="studentHistorySortField === 'typeName' && studentHistorySortOrder === 'asc' ? 'primary' : ''">
+                    作业类型升序
+                </el-button>
+                <el-button 
+                    @click="sortStudentHistory('typeName', 'desc')"
+                    :type="studentHistorySortField === 'typeName' && studentHistorySortOrder === 'desc' ? 'primary' : ''">
+                    作业类型降序
+                </el-button>
             </div>
             <el-table :data="studentHistoryRecords" style="width: 100%">
                 <el-table-column prop="date" label="日期" width="120">
@@ -574,10 +590,26 @@
         <!-- 历史欠交学生对话框 -->
         <el-dialog title="历史欠交学生" :visible.sync="unfinishedStudentsDialogVisible" width="70%">
             <div style="margin-bottom: 10px;">
-                <el-button @click="sortUnfinishedStudents('date', 'asc')">日期升序</el-button>
-                <el-button @click="sortUnfinishedStudents('date', 'desc')">日期降序</el-button>
-                <el-button @click="sortUnfinishedStudents('studentNumber', 'asc')">学号升序</el-button>
-                <el-button @click="sortUnfinishedStudents('studentNumber', 'desc')">学号降序</el-button>
+                <el-button 
+                    @click="sortUnfinishedStudents('date', 'asc')"
+                    :type="unfinishedStudentsSortField === 'date' && unfinishedStudentsSortOrder === 'asc' ? 'primary' : ''">
+                    日期升序
+                </el-button>
+                <el-button 
+                    @click="sortUnfinishedStudents('date', 'desc')"
+                    :type="unfinishedStudentsSortField === 'date' && unfinishedStudentsSortOrder === 'desc' ? 'primary' : ''">
+                    日期降序
+                </el-button>
+                <el-button 
+                    @click="sortUnfinishedStudents('studentNumber', 'asc')"
+                    :type="unfinishedStudentsSortField === 'studentNumber' && unfinishedStudentsSortOrder === 'asc' ? 'primary' : ''">
+                    学号升序
+                </el-button>
+                <el-button 
+                    @click="sortUnfinishedStudents('studentNumber', 'desc')"
+                    :type="unfinishedStudentsSortField === 'studentNumber' && unfinishedStudentsSortOrder === 'desc' ? 'primary' : ''">
+                    学号降序
+                </el-button>
             </div>
             <el-table :data="unfinishedStudents" style="width: 100%" :max-height="400">
                 <el-table-column prop="date" label="日期" width="120"></el-table-column>
@@ -646,6 +678,12 @@
                     selectedStudentName: '', // 当前选中学生的名字
                     subjects: ['语文', '数学', '英语'],
                     subjectIndex: 0,
+                    // 学生历史记录排序状态
+                    studentHistorySortField: 'typeName', // 默认排序字段
+                    studentHistorySortOrder: 'asc', // 默认排序顺序
+                    // 历史欠交学生排序状态
+                    unfinishedStudentsSortField: 'date', // 默认排序字段
+                    unfinishedStudentsSortOrder: 'asc', // 默认排序顺序
                     // 长按相关状态
                     longPressTimer: null,
                     isLongPressTriggered: false, // 标志位，用于区分长按和短按
@@ -1098,8 +1136,8 @@
                                     if (this.studentHistoryRecords.length > 0) {
                                         // 设置选中学生的名字
                                         this.selectedStudentName = item.name;
-                                        // 默认按日期升序排序
-                                        this.sortStudentHistory('date', 'asc');
+                                        // 默认按作业类型升序排序
+                                        this.sortStudentHistory('typeName', 'asc');
                                         this.studentHistoryDialogVisible = true;
                                     } else {
                                         this.$message({
@@ -1191,6 +1229,9 @@
                         });
                 },
                 sortUnfinishedStudents(field, order) {
+                    this.unfinishedStudentsSortField = field;
+                    this.unfinishedStudentsSortOrder = order;
+                    
                     this.unfinishedStudents.sort((a, b) => {
                         let result = 0;
 
@@ -1245,6 +1286,9 @@
                         });
                 },
                 sortStudentHistory(field, order) {
+                    this.studentHistorySortField = field;
+                    this.studentHistorySortOrder = order;
+                    
                     this.studentHistoryRecords.sort((a, b) => {
                         let result = 0;
 
