@@ -697,6 +697,9 @@
                 },
                 selectedType(newVal) {
                     sessionStorage.setItem('selectedType', newVal);
+                },
+                subjectIndex(newVal) {
+                    sessionStorage.setItem('subjectIndex', newVal);
                 }
             },
             mounted() {
@@ -707,9 +710,10 @@
                 this.loadStudents();
                 this.loadHomeworkTypes();
                 
-                // 从sessionStorage恢复保存的日期和作业类型
+                // 从sessionStorage恢复保存的日期、作业类型和科目
                 const savedDate = sessionStorage.getItem('selectedDate');
                 const savedType = sessionStorage.getItem('selectedType');
+                const savedSubjectIndex = sessionStorage.getItem('subjectIndex');
                 
                 if (savedDate) {
                     this.currentDate = savedDate;
@@ -717,6 +721,10 @@
                 
                 if (savedType) {
                     this.selectedType = parseInt(savedType);
+                }
+                
+                if (savedSubjectIndex) {
+                    this.subjectIndex = parseInt(savedSubjectIndex);
                 }
                 
                 this.loadData();
