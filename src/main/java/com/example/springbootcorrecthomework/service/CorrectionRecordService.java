@@ -102,6 +102,12 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
         }
     }
     
+    public void setAllFinishedByDateAndType(Date date, Integer homeworkTypeId) {
+        correctionRecordRepository.setAllFinishedByDateAndType(date, homeworkTypeId);
+        // 设置完成后确保作业已被标记为布置
+        homeworkAssignmentService.createAssignmentIfNotExists(date, homeworkTypeId);
+    }
+    
     public void resetByDateAndType(Date date, Integer homeworkTypeId) {
         correctionRecordRepository.resetByDateAndType(date, homeworkTypeId);
         // 重置后检查是否需要清除作业布置记录

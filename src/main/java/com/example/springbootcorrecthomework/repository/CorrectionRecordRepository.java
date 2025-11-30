@@ -44,6 +44,9 @@ public interface CorrectionRecordRepository extends BaseMapper<CorrectionRecord>
     @Select("SELECT COUNT(*) FROM correction_records WHERE date = #{date} AND homework_type_id = #{homeworkTypeId} AND corrected = true")
     int countFinishedByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
     
+    @Update("UPDATE correction_records SET corrected = true WHERE date = #{date} AND homework_type_id = #{homeworkTypeId}")
+    int setAllFinishedByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
+    
     @Update("UPDATE correction_records SET corrected = false WHERE date = #{date} AND homework_type_id = #{homeworkTypeId}")
     int resetByDateAndType(@Param("date") Date date, @Param("homeworkTypeId") Integer homeworkTypeId);
     

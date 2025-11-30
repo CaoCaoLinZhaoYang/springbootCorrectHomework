@@ -45,6 +45,13 @@ public class CorrectionRecordController {
         correctionRecordService.resetByDateAndType(date, typeId);
     }
     
+    @PutMapping("/set-all-finished")
+    public void setAllFinished(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+            @RequestParam Integer typeId) {
+        correctionRecordService.setAllFinishedByDateAndType(date, typeId);
+    }
+    
     @GetMapping("/statistics")
     public Map<String, Integer> getStatistics(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
