@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/correction-records")
+@RequestMapping("/api/correctionRecords")
 @CrossOrigin
 public class CorrectionRecordController {
     
@@ -38,18 +38,18 @@ public class CorrectionRecordController {
         return correctionRecordService.saveRecord(correctionRecord);
     }
     
-    @PutMapping("/reset")
-    public void resetCorrectionRecords(
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
-            @RequestParam Integer typeId) {
-        correctionRecordService.resetByDateAndType(date, typeId);
+    @GetMapping("/previousAssignedDate")
+    public Date getPreviousAssignedDate(
+            @RequestParam Integer typeId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date currentDate) {
+        return correctionRecordService.findPreviousAssignedDate(typeId, currentDate);
     }
     
-    @PutMapping("/set-all-finished")
-    public void setAllFinished(
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
-            @RequestParam Integer typeId) {
-        correctionRecordService.setAllFinishedByDateAndType(date, typeId);
+    @GetMapping("/nextAssignedDate")
+    public Date getNextAssignedDate(
+            @RequestParam Integer typeId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date currentDate) {
+        return correctionRecordService.findNextAssignedDate(typeId, currentDate);
     }
     
     @GetMapping("/statistics")
@@ -59,35 +59,35 @@ public class CorrectionRecordController {
         return correctionRecordService.getStatisticsByDateAndType(date, typeId);
     }
     
-    @GetMapping("/unfinished-students")
+    @GetMapping("/unfinishedStudents")
     public List<UnfinishedStudentDTO> getUnfinishedStudents(@RequestParam Integer typeId) {
         return correctionRecordService.findUnfinishedStudentsByType(typeId);
     }
     
-    @GetMapping("/student-unfinished")
+    @GetMapping("/studentUnfinished")
     public List<CorrectionRecord> getStudentUnfinished(
             @RequestParam Integer studentId,
             @RequestParam Integer typeId) {
         return correctionRecordService.findUnfinishedByStudentAndType(studentId, typeId);
     }
     
-    @GetMapping("/student-unfinished-all-types")
+    @GetMapping("/studentUnfinishedAllTypes")
     public List<CorrectionRecord> getStudentUnfinishedAllTypes(
             @RequestParam Integer studentId) {
         return correctionRecordService.findUnfinishedByStudentAllTypes(studentId);
     }
     
-    @GetMapping("/previous-assigned-date")
-    public Date getPreviousAssignedDate(
-            @RequestParam Integer typeId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date currentDate) {
-        return correctionRecordService.findPreviousAssignedDate(typeId, currentDate);
+    @PutMapping("/reset")
+    public void resetCorrectionRecords(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+            @RequestParam Integer typeId) {
+        correctionRecordService.resetByDateAndType(date, typeId);
     }
     
-    @GetMapping("/next-assigned-date")
-    public Date getNextAssignedDate(
-            @RequestParam Integer typeId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date currentDate) {
-        return correctionRecordService.findNextAssignedDate(typeId, currentDate);
+    @PutMapping("/setAllFinished")
+    public void setAllFinished(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+            @RequestParam Integer typeId) {
+        correctionRecordService.setAllFinishedByDateAndType(date, typeId);
     }
 }

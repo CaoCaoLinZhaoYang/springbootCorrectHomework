@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/homework-contents")
+@RequestMapping("/api/homeworkContents")
 @CrossOrigin
 public class HomeworkContentController {
     

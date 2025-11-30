@@ -773,7 +773,7 @@
                 },
                 prevAssignment() {
                     // 获取前一次布置作业的日期
-                    axios.get(`/api/correction-records/previous-assigned-date?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
+                    axios.get(`/api/correctionRecords/previousAssignedDate?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
                         .then(response => {
                             if (response.data) {
                                 this.currentDate = response.data;
@@ -795,7 +795,7 @@
                 },
                 nextAssignment() {
                     // 获取后一次布置作业的日期
-                    axios.get(`/api/correction-records/next-assigned-date?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
+                    axios.get(`/api/correctionRecords/nextAssignedDate?typeId=${this.selectedType}&currentDate=${this.currentDate}`)
                         .then(response => {
                             if (response.data) {
                                 this.currentDate = response.data;
@@ -822,21 +822,21 @@
                         });
                 },
                 loadHomeworkTypes() {
-                    return axios.get('/api/homework-types')
+                    return axios.get('/api/homeworkTypes')
                         .then(response => {
                             this.homeworkTypes = response.data;
                         });
                 },
                 loadData() {
                     // 加载订正记录
-                    axios.get(`/api/correction-records?date=${this.currentDate}&typeId=${this.selectedType}`)
+                    axios.get(`/api/correctionRecords?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
                             this.correctionRecords = response.data;
                             this.updateStats();
                         });
 
                     // 加载作业内容
-                    axios.get(`/api/homework-contents?date=${this.currentDate}&typeId=${this.selectedType}`)
+                    axios.get(`/api/homeworkContents?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
                             // 检查响应状态码，204表示无内容
                             if (response.status === 204) {
@@ -850,7 +850,7 @@
                         });
                 },
                 updateStats() {
-                    axios.get(`/api/correction-records/statistics?date=${this.currentDate}&typeId=${this.selectedType}`)
+                    axios.get(`/api/correctionRecords/statistics?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
                             this.finishedCount = response.data.finished;
                             this.unfinishedCount = response.data.unfinished;
@@ -887,7 +887,7 @@
                             corrected: true
                         };
 
-                        axios.post('/api/correction-records', record)
+                        axios.post('/api/correctionRecords', record)
                             .then(response => {
                                 this.correctionRecords.push(response.data);
                                 this.updateStats();
@@ -895,14 +895,14 @@
                     } else {
                         // 更新现有记录
                         record.corrected = !record.corrected;
-                        axios.post('/api/correction-records', record)
+                        axios.post('/api/correctionRecords', record)
                             .then(response => {
                                 this.updateStats();
                             });
                     }
                 },
                 saveHomeworkContent() {
-                    axios.get(`/api/homework-contents?date=${this.currentDate}&typeId=${this.selectedType}`)
+                    axios.get(`/api/homeworkContents?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
                             // 检查响应状态码，204表示无内容
                             let content;
@@ -916,7 +916,7 @@
                             content.homeworkTypeId = this.selectedType;
                             content.content = this.homeworkContent;
 
-                            return axios.post('/api/homework-contents', content);
+                            return axios.post('/api/homeworkContents', content);
                         })
                         .catch(() => {
                             // 新建
@@ -925,7 +925,7 @@
                                 homeworkTypeId: this.selectedType,
                                 content: this.homeworkContent
                             };
-                            return axios.post('/api/homework-contents', content);
+                            return axios.post('/api/homeworkContents', content);
                         });
                 },
                 resetStatus() {
@@ -934,7 +934,7 @@
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
-                        axios.put(`/api/correction-records/reset?date=${this.currentDate}&typeId=${this.selectedType}`)
+                        axios.put(`/api/correctionRecords/reset?date=${this.currentDate}&typeId=${this.selectedType}`)
                             .then(() => {
                                 this.loadData();
                                 this.$message({
@@ -950,7 +950,7 @@
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
-                        axios.put(`/api/correction-records/set-all-finished?date=${this.currentDate}&typeId=${this.selectedType}`)
+                        axios.put(`/api/correctionRecords/setAllFinished?date=${this.currentDate}&typeId=${this.selectedType}`)
                             .then(() => {
                                 this.loadData();
                                 this.$message({
@@ -989,7 +989,7 @@
                 },
                 handleSelectStudent(item) {
                     // 获取学生历史欠交记录
-                    axios.get(`/api/correction-records/student-unfinished-all-types?studentId=${item.id}`)
+                    axios.get(`/api/correctionRecords/studentUnfinishedAllTypes?studentId=${item.id}`)
                         .then(response => {
                             // 过滤掉未来日期的记录
                             const today = new Date();
@@ -1022,7 +1022,7 @@
                                 // 为每条记录获取对应的作业类型内容
                                 const record = studentHistoryRecords.find(r => r.date === date);
                                 if (record) {
-                                    return axios.get(`/api/homework-contents?date=${formattedDate}&typeId=${record.homeworkTypeId}`)
+                                    return axios.get(`/api/homeworkContents?date=${formattedDate}&typeId=${record.homeworkTypeId}`)
                                         .then(response => {
                                             // 检查响应状态码，204表示无内容
                                             if (response.status === 204) {
@@ -1090,7 +1090,7 @@
                         });
                 },
                 showUnfinishedStudents() {
-                    axios.get(`/api/correction-records/unfinished-students?typeId=${this.selectedType}`)
+                    axios.get(`/api/correctionRecords/unfinishedStudents?typeId=${this.selectedType}`)
                         .then(response => {
                             // 先获取所有未完成学生的基本信息
                             const unfinishedStudents = response.data.map(item => {
@@ -1120,7 +1120,7 @@
                             // 为每个日期获取作业内容
                             const dates = [...new Set(unfinishedStudents.map(s => s.formattedDate))];
                             const contentPromises = dates.map(date =>
-                                axios.get(`/api/homework-contents?date=${date}&typeId=${this.selectedType}`)
+                                axios.get(`/api/homeworkContents?date=${date}&typeId=${this.selectedType}`)
                                     .then(response => {
                                         // 检查响应状态码，204表示无内容
                                         if (response.status === 204) {
@@ -1191,7 +1191,7 @@
                 },
                 markAsFinished(row) {
                     row.corrected = true;
-                    axios.post('/api/correction-records', row)
+                    axios.post('/api/correctionRecords', row)
                         .then(() => {
                             this.$message({
                                 type: 'success',
@@ -1246,7 +1246,7 @@
                 markUnfinishedStudentAsFinished(row) {
                     // 标记历史欠交学生为已完成
                     // 首先需要找到该学生的订正记录ID
-                    axios.get(`/api/correction-records?date=${row.rawDate}&typeId=${this.selectedType}`)
+                    axios.get(`/api/correctionRecords?date=${row.rawDate}&typeId=${this.selectedType}`)
                         .then(response => {
                             // 在返回的记录中找到对应学生的记录
                             const student = this.students.find(s => s.studentNumber === row.studentNumber);
@@ -1255,7 +1255,7 @@
                                 if (record) {
                                     // 更新记录状态为已完成
                                     record.corrected = true;
-                                    return axios.post('/api/correction-records', record);
+                                    return axios.post('/api/correctionRecords', record);
                                 }
                             }
                             return Promise.reject("未找到对应记录");
