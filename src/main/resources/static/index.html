@@ -432,7 +432,8 @@
                                 @change="loadData"
                                 :clearable="false"
                                 style="width: 120px; cursor: pointer;"
-                                :editable="false">
+                                :editable="false"
+                                :picker-options="pickerOptions">
                             </el-date-picker>
                         </div>
                         <div>
@@ -646,7 +647,16 @@
                     selectedStudent: null,
                     // popover相关
                     contextMenuVisible: false, // 控制全局popover的显示
-                    mousePosition: { x: 0, y: 0 } // 鼠标位置
+                    mousePosition: { x: 0, y: 0 }, // 鼠标位置
+                    // 日期选择器选项
+                    pickerOptions: {
+                        shortcuts: [{
+                            text: '今天',
+                            onClick(picker) {
+                                picker.$emit('pick', new Date());
+                            }
+                        }]
+                    }
                 };
             },
             computed: {
