@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" oncontextmenu="return false;">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -298,6 +298,55 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* 右键菜单样式 */
+        .context-menu {
+            position: fixed;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            min-width: 120px;
+            padding: 4px 0;
+            border: 1px solid #ebeef5;
+        }
+        
+        .context-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        
+        .context-menu-item:hover {
+            background-color: #f5f7fa;
+        }
+        
+        /* popover 菜单样式 */
+        .popover-menu {
+            position: absolute;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            min-width: 120px;
+            padding: 4px 0;
+            border: 1px solid #ebeef5;
+        }
+        
+        .popover-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        
+        .popover-menu-item:hover {
+            background-color: #f5f7fa;
+        }
     </style>
 </head>
 <body>
@@ -408,11 +457,22 @@
                         :key="student.id"
                         :class="getStudentButtonClass(student)"
                         @click="toggleStudentStatus(student)"
+                        @mousedown.native="recordPressStart(student, $event)"
+                        @contextmenu.native.prevent="showContextMenu($event, student)"
                         class="student-btn">
                         {{ student.studentNumber }}.{{ student.name }}
                     </el-button>
                 </div>
             </div>
+            
+            <!-- 全局Popover用于长按和右键菜单 -->
+            <el-popover
+                placement="bottom"
+                trigger="manual"
+                v-model="contextMenuVisible"
+                ref="globalPopover">
+                <div style="padding: 5px; cursor: pointer;" @click.stop="checkStudentHistory()">彻查作业</div>
+            </el-popover>
             
             <div class="spacer"></div>
         </div>
@@ -520,7 +580,14 @@
                     homeworkContentDialogVisible: false, // 作业内容弹窗可见性
                     selectedStudentName: '', // 当前选中学生的名字
                     subjects: ['语文', '数学', '英语'],
-                    subjectIndex: 0
+                    subjectIndex: 0,
+                    // 长按相关状态
+                    longPressTimer: null,
+                    isLongPressTriggered: false, // 标志位，用于区分长按和短按
+                    selectedStudent: null,
+                    // popover相关
+                    contextMenuVisible: false, // 控制全局popover的显示
+                    mousePosition: { x: 0, y: 0 } // 鼠标位置
                 };
             },
             computed: {
@@ -559,6 +626,8 @@
                 }
             },
             mounted() {
+                // 绑定recordPressEndBound方法
+                this.recordPressEndBound = this.recordPressEnd.bind(this);
                 this.updateTime();
                 setInterval(this.updateTime, 1000);
                 this.loadStudents();
@@ -577,6 +646,19 @@
                 }
                 
                 this.loadData();
+                
+                // 添加全局mouseup事件监听器
+                document.addEventListener('mouseup', this.recordPressEndBound);
+                // 阻止整个文档的右键菜单，但允许学生按钮上的右键菜单
+                document.addEventListener('contextmenu', (event) => {
+                    // 检查右键点击是否发生在学生按钮上
+                    if (event.target.classList.contains('student-btn') || event.target.closest('.student-btn')) {
+                        // 如果是学生按钮，则不阻止默认行为，让Vue处理
+                        return;
+                    }
+                    // 阻止其他地方的右键菜单
+                    event.preventDefault();
+                });
             },
             methods: {
                 getCurrentDate() {
@@ -710,6 +792,16 @@
                     return 'unfinished';
                 },
                 toggleStudentStatus(student) {
+                    console.log('toggleStudentStatus 被调用');
+                    // 如果触发了长按，则不执行点击操作
+                    if (this.isLongPressTriggered) {
+                        console.log('长按状态下不执行点击操作');
+                        this.isLongPressTriggered = false; // 重置标志
+                        return;
+                    }
+                    
+                    console.log('执行点击操作');
+                    // 正常的点击逻辑
                     let record = this.correctionRecords.find(r => r.studentId === student.id);
 
                     if (!record) {
@@ -1133,6 +1225,155 @@
                     });
                     // 可以在这里添加其他与科目切换相关的逻辑
                 },
+                
+                // 记录按下开始时间并启动定时器
+                recordPressStart(student, event) {
+                    // 清除之前的定时器
+                    this.cancelLongPress();
+                    
+                    this.selectedStudent = student;
+                    // 重置长按标志
+                    this.isLongPressTriggered = false;
+                    
+                    // 保存鼠标位置
+                    this.mousePosition = {
+                        x: event.clientX || (event.touches && event.touches[0].clientX),
+                        y: event.clientY || (event.touches && event.touches[0].clientY)
+                    };
+                    
+                    // 设置1秒后触发长按事件的定时器
+                    this.longPressTimer = setTimeout(() => {
+                        this.isLongPressTriggered = true; // 设置长按标志
+                        
+                        // 显示全局Popover
+                        this.contextMenuVisible = true;
+                        
+                        // 设置popover位置为鼠标位置
+                        this.$nextTick(() => {
+                            const popover = this.$refs.globalPopover;
+                            if (popover && popover.$el) {
+                                const popper = popover.$el;
+                                popper.style.position = 'fixed';
+                                popper.style.left = this.mousePosition.x + 'px';
+                                popper.style.top = this.mousePosition.y + 'px';
+                                popper.style.transform = 'translate(0, 0)';
+                            }
+                        });
+                        
+                        // 添加全局点击监听器，用于隐藏popover
+                        this.addGlobalClickListener();
+                    }, 1000);
+                },
+                // 取消长按检测
+                cancelLongPress() {
+                    console.log('取消长按检测');
+                    if (this.longPressTimer) {
+                        clearTimeout(this.longPressTimer);
+                        this.longPressTimer = null;
+                    }
+                },
+                // 记录按下结束时间并判断是否为长按
+                recordPressEnd(event) {
+                    // 取消长按检测
+                    this.cancelLongPress();
+                    
+                    // 移除document级别的mouseup事件监听器
+                    document.removeEventListener('mouseup', this.recordPressEndBound);
+                    
+                    // 如果已经触发了长按（无论popover是否完全显示），则不需要做其他操作
+                    if (this.isLongPressTriggered) {
+                        return;
+                    }
+                },
+                // 显示右键菜单
+                showContextMenu(event, student) {
+                    console.log('显示右键菜单被调用', { 
+                        studentId: student.id, 
+                        eventType: event.type
+                    });
+                    
+                    event.preventDefault();  // 阻止浏览器默认右键菜单
+                    event.stopPropagation(); // 阻止事件冒泡
+                    
+                    this.selectedStudent = student;
+                    console.log('显示右键菜单，学生ID:', student.id);
+                    
+                    // 清除长按检测
+                    this.cancelLongPress();
+                    
+                    // 保存鼠标位置
+                    this.mousePosition = {
+                        x: event.clientX,
+                        y: event.clientY
+                    };
+                    
+                    // 显示全局Popover
+                    this.contextMenuVisible = true;
+                    console.log('设置contextMenuVisible为true');
+                    
+                    // 设置popover位置为鼠标位置
+                    this.$nextTick(() => {
+                        const popover = this.$refs.globalPopover;
+                        if (popover && popover.$el) {
+                            const popper = popover.$el;
+                            popper.style.position = 'fixed';
+                            popper.style.left = this.mousePosition.x + 'px';
+                            popper.style.top = this.mousePosition.y + 'px';
+                            popper.style.transform = 'translate(0, 0)';
+                        }
+                    });
+                    
+                    // 添加全局点击监听器，用于隐藏popover
+                    this.addGlobalClickListener();
+                },
+                // 添加全局点击监听器
+                addGlobalClickListener() {
+                    // 创建一个函数用于隐藏popover
+                    const hidePopover = (event) => {
+                        // 检查mousedown事件是否发生在popover内部
+                        const popoverElements = document.querySelectorAll('.el-popover');
+                        let isClickInsidePopover = false;
+                        for (let i = 0; i < popoverElements.length; i++) {
+                            if (popoverElements[i] === event.target || popoverElements[i].contains(event.target)) {
+                                isClickInsidePopover = true;
+                                break;
+                            }
+                        }
+                        
+                        // 检查是否是学生按钮
+                        const isClickOnStudentButton = event.target.classList.contains('student-btn') || 
+                                                     event.target.closest('.student-btn');
+                        
+                        // 只有当mousedown事件发生在popover外部且不是学生按钮时，才隐藏popover
+                        if (!isClickInsidePopover && !isClickOnStudentButton) {
+                            this.contextMenuVisible = false;
+                            // 移除事件监听器
+                            document.removeEventListener('mousedown', hidePopover);
+                        }
+                    };
+                    
+                    // 在下一个tick添加事件监听器，避免立即触发
+                    this.$nextTick(() => {
+                        // 先移除之前的监听器（如果有的话）
+                        document.removeEventListener('mousedown', this.globalClickListener);
+                        // 保存当前监听器的引用
+                        this.globalClickListener = hidePopover;
+                        // 使用mousedown事件而不是click事件
+                        document.addEventListener('mousedown', hidePopover);
+                    });
+                },
+                
+                // 彻查学生作业历史
+                checkStudentHistory() {
+                    this.contextMenuVisible = false;
+                    // 移除全局点击监听器
+                    if (this.globalClickListener) {
+                        document.removeEventListener('mousedown', this.globalClickListener);
+                    }
+                    if (this.selectedStudent) {
+                        this.handleSelectStudent(this.selectedStudent);
+                    }
+                }
             }
         });
     </script>
