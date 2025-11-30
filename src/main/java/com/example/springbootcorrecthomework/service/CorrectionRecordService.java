@@ -1,6 +1,7 @@
 package com.example.springbootcorrecthomework.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.springbootcorrecthomework.dto.UnfinishedCountByStudent;
 import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import com.example.springbootcorrecthomework.entity.HomeworkAssignment;
@@ -65,6 +66,12 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     
     public List<CorrectionRecord> findUnfinishedByStudentAllTypes(Integer studentId) {
         return correctionRecordRepository.findUnfinishedByStudentAllTypes(studentId);
+    }
+    
+    public List<UnfinishedCountByStudent> findUnfinishedCountBySubject(Integer subjectId) {
+        // 获取今天之前的日期
+        Date today = new Date();
+        return correctionRecordRepository.findUnfinishedCountBySubject(subjectId, today);
     }
     
     public List<UnfinishedStudentDTO> findUnfinishedStudentsByType(Integer homeworkTypeId) {

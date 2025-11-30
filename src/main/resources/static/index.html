@@ -204,6 +204,25 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
         
+        .unfinished-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #FFA500;
+            color: white;
+            border-radius: 50%;
+            min-width: 28px;
+            height: 28px;
+            font-size: 21px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 0 4px;
+            z-index: 1;
+        }
+        
         .spacer {
             width: 130px;
         }
@@ -512,6 +531,14 @@
                         {{ currentSubject }}
                     </el-button>
                 </div>
+                <div class="stat-item">
+                    <el-button 
+                        @click="toggleUnfinishedCount" 
+                        :type="showUnfinishedCount ? 'warning' : 'default'"
+                        style="width: 100%; height: 70px; font-size: 18px; font-weight: bold; border-radius: 15px;">
+                        欠交数量
+                    </el-button>
+                </div>
             </div>
             
             <div class="students-section">
@@ -524,8 +551,13 @@
                         @mousedown.native="recordPressStart(student, $event)"
                         @mouseup.native="recordPressEnd($event)"
                         @contextmenu.native.prevent="showContextMenu($event, student)"
-                        class="student-btn">
+                        class="student-btn"
+                        style="position: relative; text-align: center;">
                         {{ student.studentNumber }}.{{ student.name }}
+                        <div v-if="showUnfinishedCount && studentUnfinishedCounts[student.id] && studentUnfinishedCounts[student.id] > 0" 
+                             class="unfinished-badge">
+                            {{ studentUnfinishedCounts[student.id] > 99 ? '99+' : studentUnfinishedCounts[student.id] }}
+                        </div>
                     </el-button>
                 </div>
             </div>
@@ -684,6 +716,10 @@
                     // 历史欠交学生排序状态
                     unfinishedStudentsSortField: 'date', // 默认排序字段
                     unfinishedStudentsSortOrder: 'asc', // 默认排序顺序
+                    // 欠交数量显示状态
+                    showUnfinishedCount: false,
+                    // 学生欠交数量数据
+                    studentUnfinishedCounts: {},
                     // 长按相关状态
                     longPressTimer: null,
                     isLongPressTriggered: false, // 标志位，用于区分长按和短按
@@ -915,6 +951,11 @@
                         .catch(() => {
                             this.homeworkContent = '';
                         });
+                    
+                    // 如果正在显示欠交数量，则重新加载欠交数量数据
+                    if (this.showUnfinishedCount) {
+                        this.loadUnfinishedCounts();
+                    }
                 },
                 updateStats() {
                     axios.get(`/api/correctionRecords/statistics?date=${this.currentDate}&typeId=${this.selectedType}`)
@@ -951,6 +992,7 @@
                             date: this.currentDate,
                             studentId: student.id,
                             homeworkTypeId: this.selectedType,
+                            subjectId: this.getSubjectIdByHomeworkType(this.selectedType),
                             corrected: true
                         };
 
@@ -958,6 +1000,10 @@
                             .then(response => {
                                 this.correctionRecords.push(response.data);
                                 this.updateStats();
+                                // 如果开启了欠交数量显示，则更新欠交数量
+                                if (this.showUnfinishedCount) {
+                                    this.loadUnfinishedCounts();
+                                }
                             });
                     } else {
                         // 更新现有记录
@@ -965,6 +1011,10 @@
                         axios.post('/api/correctionRecords', record)
                             .then(response => {
                                 this.updateStats();
+                                // 如果开启了欠交数量显示，则更新欠交数量
+                                if (this.showUnfinishedCount) {
+                                    this.loadUnfinishedCounts();
+                                }
                             });
                     }
                 },
@@ -1004,6 +1054,10 @@
                         axios.put(`/api/correctionRecords/reset?date=${this.currentDate}&typeId=${this.selectedType}`)
                             .then(() => {
                                 this.loadData();
+                                // 如果开启了欠交数量显示，则更新欠交数量
+                                if (this.showUnfinishedCount) {
+                                    this.loadUnfinishedCounts();
+                                }
                                 this.$message({
                                     type: 'success',
                                     message: '重置成功!'
@@ -1020,6 +1074,10 @@
                         axios.put(`/api/correctionRecords/setAllFinished?date=${this.currentDate}&typeId=${this.selectedType}`)
                             .then(() => {
                                 this.loadData();
+                                // 如果开启了欠交数量显示，则更新欠交数量
+                                if (this.showUnfinishedCount) {
+                                    this.loadUnfinishedCounts();
+                                }
                                 this.$message({
                                     type: 'success',
                                     message: '设置成功!'
@@ -1283,6 +1341,10 @@
 
                             // 刷新主页面数据
                             this.loadData();
+                            // 如果开启了欠交数量显示，则更新欠交数量
+                            if (this.showUnfinishedCount) {
+                                this.loadUnfinishedCounts();
+                            }
                         });
                 },
                 sortStudentHistory(field, order) {
@@ -1352,6 +1414,11 @@
                                 type: 'success',
                                 message: '标记成功!'
                             });
+                            
+                            // 如果开启了欠交数量显示，则更新欠交数量
+                            if (this.showUnfinishedCount) {
+                                this.loadUnfinishedCounts();
+                            }
                         })
                         .catch(error => {
                             this.$message({
@@ -1391,6 +1458,10 @@
                     this.loadHomeworkTypes().then(() => {
                         // 重新加载数据
                         this.loadData();
+                        // 如果正在显示欠交数量，则重新加载欠交数量数据
+                        if (this.showUnfinishedCount) {
+                            this.loadUnfinishedCounts();
+                        }
                     });
                     // 弹出消息提示
                     this.$message({
@@ -1400,6 +1471,38 @@
                     });
                 },
                 
+                toggleUnfinishedCount() {
+                    this.showUnfinishedCount = !this.showUnfinishedCount;
+                    if (this.showUnfinishedCount) {
+                        this.loadUnfinishedCounts();
+                    }
+                },
+                
+                loadUnfinishedCounts() {
+                    // 获取所有学生在当前科目下的欠交数量（批量获取）
+                    const subjectId = this.subjectIndex + 1;
+                    axios.get(`/api/correctionRecords/unfinishedCountBySubject?subjectId=${subjectId}`)
+                        .then(response => {
+                            const counts = {};
+                            response.data.forEach(item => {
+                                counts[item.studentId] = item.unfinishedCount;
+                            });
+                            this.studentUnfinishedCounts = counts;
+                        })
+                        .catch(error => {
+                            console.error('获取欠交数量失败:', error);
+                            this.$message({
+                                type: 'error',
+                                message: '获取欠交数量失败'
+                            });
+                        });
+                },
+                
+                getSubjectIdByHomeworkType(homeworkTypeId) {
+                    // 根据作业类型ID获取科目ID
+                    const homeworkType = this.homeworkTypes.find(type => type.id === homeworkTypeId);
+                    return homeworkType ? homeworkType.subjectId : 1; // 默认为语文科目
+                },
                 // 记录按下开始时间并启动定时器
                 recordPressStart(student, event) {
                     // 清除之前的定时器

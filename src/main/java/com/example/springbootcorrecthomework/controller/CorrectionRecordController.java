@@ -1,5 +1,6 @@
 package com.example.springbootcorrecthomework.controller;
 
+import com.example.springbootcorrecthomework.dto.UnfinishedCountByStudent;
 import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import com.example.springbootcorrecthomework.service.CorrectionRecordService;
@@ -79,6 +80,11 @@ public class CorrectionRecordController {
             return correctionRecordService.findUnfinishedByStudentAndSubject(studentId, subjectId);
         }
         return correctionRecordService.findUnfinishedByStudentAllTypes(studentId);
+    }
+    
+    @GetMapping("/unfinishedCountBySubject")
+    public List<UnfinishedCountByStudent> getUnfinishedCountBySubject(@RequestParam Integer subjectId) {
+        return correctionRecordService.findUnfinishedCountBySubject(subjectId);
     }
     
     @PutMapping("/reset")

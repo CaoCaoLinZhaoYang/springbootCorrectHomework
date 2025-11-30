@@ -1,6 +1,7 @@
 package com.example.springbootcorrecthomework.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.example.springbootcorrecthomework.dto.UnfinishedCountByStudent;
 import com.example.springbootcorrecthomework.dto.UnfinishedStudentDTO;
 import com.example.springbootcorrecthomework.entity.CorrectionRecord;
 import org.apache.ibatis.annotations.*;
@@ -32,6 +33,13 @@ public interface CorrectionRecordRepository extends BaseMapper<CorrectionRecord>
            "WHERE c.student_id = #{studentId} AND c.corrected = false " +
            "ORDER BY c.homework_type_id, c.date")
     List<CorrectionRecord> findUnfinishedByStudentAllTypes(@Param("studentId") Integer studentId);
+    
+    @Select("SELECT c.student_id as studentId, COUNT(*) as unfinishedCount " +
+           "FROM correction_records c " +
+           "JOIN homework_assignments ha ON c.date = ha.date AND c.homework_type_id = ha.homework_type_id " +
+           "WHERE c.subject_id = #{subjectId} AND c.corrected = false AND ha.date <= #{currentDate} " +
+           "GROUP BY c.student_id")
+    List<UnfinishedCountByStudent> findUnfinishedCountBySubject(@Param("subjectId") Integer subjectId, @Param("currentDate") Date currentDate);
     
     @Select("SELECT DISTINCT c.date, s.student_number, s.name " +
            "FROM correction_records c " +
