@@ -12,6 +12,13 @@
             padding: 20px;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
             min-height: 100vh;
+            // 禁用文字选中
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            // 禁用移动端的文本选择和高亮
+            -webkit-tap-highlight-color: transparent;
         }
         /* 作业类型下拉框文字居中 */
         .center-select .el-input__inner {
@@ -246,6 +253,11 @@
         .el-table {
             border-radius: 10px;
             overflow: hidden;
+            // 允许在表格中选择文字
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         .el-table th {
             background-color: #ecf5ff;
@@ -253,16 +265,49 @@
         /* 输入框样式优化 */
         .el-input__inner {
             border-radius: 10px;
+            // 允许在输入框中选择文字
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         .el-select .el-input__inner {
             border-radius: 10px;
+            // 允许在选择框中选择文字
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         .el-date-editor.el-input {
             border-radius: 10px;
+            // 允许在日期编辑器中选择文字
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        // 允许在弹窗中的输入框选择文字
+        .el-dialog .el-input__inner {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        .el-dialog .el-textarea__inner {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         /* 选择器样式优化 */
         .el-select-dropdown {
             border-radius: 10px;
+            // 允许在下拉选项中选择文字
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         .el-date-picker {
             border-radius: 15px;
@@ -333,6 +378,11 @@
             min-width: 120px;
             padding: 4px 0;
             border: 1px solid #ebeef5;
+            // 允许在popover菜单中选择文字
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         
         .popover-menu-item {
@@ -346,6 +396,14 @@
         
         .popover-menu-item:hover {
             background-color: #f5f7fa;
+        }
+        .el-autocomplete-suggestion {
+            border-radius: 10px;
+            // 允许在自动完成建议中选择文字
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
     </style>
 </head>
@@ -458,6 +516,7 @@
                         :class="getStudentButtonClass(student)"
                         @click="toggleStudentStatus(student)"
                         @mousedown.native="recordPressStart(student, $event)"
+                        @mouseup.native="recordPressEnd($event)"
                         @contextmenu.native.prevent="showContextMenu($event, student)"
                         class="student-btn">
                         {{ student.studentNumber }}.{{ student.name }}
