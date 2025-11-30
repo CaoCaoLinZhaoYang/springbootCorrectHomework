@@ -19,7 +19,24 @@
             user-select: none;
             // 禁用移动端的文本选择和高亮
             -webkit-tap-highlight-color: transparent;
+            transition: background 0.3s ease;
         }
+        
+        /* 语文主题样式 */
+        body.chinese-theme {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffe4b5 100%);
+        }
+        
+        /* 数学主题样式 */
+        body.math-theme {
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce6ff 100%);
+        }
+        
+        /* 英语主题样式 */
+        body.english-theme {
+            background: linear-gradient(135deg, #ffe6f0 0%, #ffccdd 100%);
+        }
+        
         /* 作业类型下拉框文字居中 */
         .center-select .el-input__inner {
             text-align: center;
@@ -34,7 +51,24 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
+        
+        /* 语文主题头部 */
+        body.chinese-theme .header {
+            background: linear-gradient(90deg, #d2691e, #ff8c00);
+        }
+        
+        /* 数学主题头部 */
+        body.math-theme .header {
+            background: linear-gradient(90deg, #1e90ff, #4169e1);
+        }
+        
+        /* 英语主题头部 */
+        body.english-theme .header {
+            background: linear-gradient(90deg, #ff69b4, #ff1493);
+        }
+        
         .header h1 {
             margin: 0;
             font-size: 28px;
@@ -57,7 +91,24 @@
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
+        
+        /* 语文主题控制区域 */
+        body.chinese-theme .controls {
+            background-color: #fff8dc;
+        }
+        
+        /* 数学主题控制区域 */
+        body.math-theme .controls {
+            background-color: #f0f8ff;
+        }
+        
+        /* 英语主题控制区域 */
+        body.english-theme .controls {
+            background-color: #fff0f5;
+        }
+        
         .control-group {
             margin-bottom: 15px;
             display: flex;
@@ -79,7 +130,24 @@
             padding: 20px 15px;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
+        
+        /* 语文主题统计区域 */
+        body.chinese-theme .stats {
+            background: linear-gradient(135deg, #fffacd, #f5deB3);
+        }
+        
+        /* 数学主题统计区域 */
+        body.math-theme .stats {
+            background: linear-gradient(135deg, #e0ffff, #b0e0e6);
+        }
+        
+        /* 英语主题统计区域 */
+        body.english-theme .stats {
+            background: linear-gradient(135deg, #ffe4e1, #ffb6c1);
+        }
+        
         .stat-item {
             text-align: center;
             margin-bottom: 25px;
@@ -87,7 +155,24 @@
             border-radius: 12px;
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
+        
+        /* 语文主题统计项 */
+        body.chinese-theme .stat-item {
+            background: #fffaf0;
+        }
+        
+        /* 数学主题统计项 */
+        body.math-theme .stat-item {
+            background: #f8f8ff;
+        }
+        
+        /* 英语主题统计项 */
+        body.english-theme .stat-item {
+            background: #fff5f5;
+        }
+        
         .stat-item:last-child {
             margin-bottom: 0;
         }
@@ -235,7 +320,24 @@
             background: linear-gradient(90deg, #409EFF, #64b5f6);
             color: white;
             padding: 20px;
+            transition: all 0.3s ease;
         }
+        
+        /* 语文主题弹窗头部 */
+        body.chinese-theme .el-dialog__header {
+            background: linear-gradient(90deg, #d2691e, #ff8c00);
+        }
+        
+        /* 数学主题弹窗头部 */
+        body.math-theme .el-dialog__header {
+            background: linear-gradient(90deg, #1e90ff, #4169e1);
+        }
+        
+        /* 英语主题弹窗头部 */
+        body.english-theme .el-dialog__header {
+            background: linear-gradient(90deg, #ff69b4, #ff1493);
+        }
+        
         .el-dialog__title {
             color: white;
             font-weight: bold;
@@ -246,7 +348,24 @@
         .el-dialog__footer {
             padding: 15px 20px;
             background-color: #f5f7fa;
+            transition: all 0.3s ease;
         }
+        
+        /* 语文主题弹窗底部 */
+        body.chinese-theme .el-dialog__footer {
+            background-color: #fff8dc;
+        }
+        
+        /* 数学主题弹窗底部 */
+        body.math-theme .el-dialog__footer {
+            background-color: #f0f8ff;
+        }
+        
+        /* 英语主题弹窗底部 */
+        body.english-theme .el-dialog__footer {
+            background-color: #fff0f5;
+        }
+        
         /* 按钮样式优化 */
         .el-button {
             border-radius: 10px;
@@ -256,6 +375,22 @@
             background: linear-gradient(90deg, #409EFF, #64b5f6);
             border: none;
         }
+        
+        /* 语文主题主要按钮 */
+        body.chinese-theme .el-button--primary {
+            background: linear-gradient(90deg, #d2691e, #ff8c00);
+        }
+        
+        /* 数学主题主要按钮 */
+        body.math-theme .el-button--primary {
+            background: linear-gradient(90deg, #1e90ff, #4169e1);
+        }
+        
+        /* 英语主题主要按钮 */
+        body.english-theme .el-button--primary {
+            background: linear-gradient(90deg, #ff69b4, #ff1493);
+        }
+        
         .el-button--success {
             background: linear-gradient(90deg, #67C23A, #95d475);
             border: none;
@@ -281,6 +416,22 @@
         .el-table th {
             background-color: #ecf5ff;
         }
+        
+        /* 语文主题表格头部 */
+        body.chinese-theme .el-table th {
+            background-color: #fffacd;
+        }
+        
+        /* 数学主题表格头部 */
+        body.math-theme .el-table th {
+            background-color: #e0ffff;
+        }
+        
+        /* 英语主题表格头部 */
+        body.english-theme .el-table th {
+            background-color: #ffe4e1;
+        }
+        
         /* 输入框样式优化 */
         .el-input__inner {
             border-radius: 10px;
@@ -774,6 +925,8 @@
                 },
                 subjectIndex(newVal) {
                     sessionStorage.setItem('subjectIndex', newVal);
+                    // 切换主题
+                    this.applySubjectTheme();
                 }
             },
             mounted() {
@@ -795,6 +948,9 @@
                 if (savedSubjectIndex) {
                     this.subjectIndex = parseInt(savedSubjectIndex);
                 }
+                
+                // 应用主题
+                this.applySubjectTheme();
                 
                 // 先加载作业类型，再加载数据
                 this.loadHomeworkTypes().then(() => {
@@ -857,6 +1013,25 @@
                     const minutes = String(now.getMinutes()).padStart(2, '0');
                     const seconds = String(now.getSeconds()).padStart(2, '0');
                     this.currentTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+                },
+                applySubjectTheme() {
+                    // 移除所有主题类
+                    document.body.classList.remove('chinese-theme', 'math-theme', 'english-theme');
+                    
+                    // 根据当前科目添加对应的主题类
+                    switch(this.subjectIndex) {
+                        case 0: // 语文 - 深黄色主题
+                            document.body.classList.add('chinese-theme');
+                            break;
+                        case 1: // 数学 - 蓝色主题
+                            document.body.classList.add('math-theme');
+                            break;
+                        case 2: // 英语 - 粉红色主题
+                            document.body.classList.add('english-theme');
+                            break;
+                        default:
+                            document.body.classList.add('math-theme');
+                    }
                 },
                 prevDay() {
                     const date = new Date(this.currentDate);
