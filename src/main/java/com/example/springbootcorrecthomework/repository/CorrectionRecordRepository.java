@@ -17,6 +17,12 @@ public interface CorrectionRecordRepository extends BaseMapper<CorrectionRecord>
     
     @Select("SELECT c.* FROM correction_records c " +
            "JOIN homework_assignments ha ON c.date = ha.date AND c.homework_type_id = ha.homework_type_id " +
+           "WHERE c.student_id = #{studentId} AND c.subject_id = #{subjectId} AND c.corrected = false " +
+           "ORDER BY c.date")
+    List<CorrectionRecord> findUnfinishedByStudentAndSubject(@Param("studentId") Integer studentId, @Param("subjectId") Integer subjectId);
+    
+    @Select("SELECT c.* FROM correction_records c " +
+           "JOIN homework_assignments ha ON c.date = ha.date AND c.homework_type_id = ha.homework_type_id " +
            "WHERE c.student_id = #{studentId} AND c.homework_type_id = #{homeworkTypeId} AND c.corrected = false " +
            "ORDER BY c.date")
     List<CorrectionRecord> findUnfinishedByStudentAndType(@Param("studentId") Integer studentId, @Param("homeworkTypeId") Integer homeworkTypeId);

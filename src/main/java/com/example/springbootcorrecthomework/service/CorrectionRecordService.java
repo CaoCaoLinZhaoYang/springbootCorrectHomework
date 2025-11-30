@@ -7,6 +7,7 @@ import com.example.springbootcorrecthomework.entity.HomeworkAssignment;
 import com.example.springbootcorrecthomework.repository.CorrectionRecordRepository;
 import com.example.springbootcorrecthomework.repository.StudentRepository;
 import com.example.springbootcorrecthomework.service.HomeworkAssignmentService;
+import com.example.springbootcorrecthomework.service.HomeworkTypeService;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,13 +21,16 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     private final CorrectionRecordRepository correctionRecordRepository;
     private final StudentRepository studentRepository;
     private final HomeworkAssignmentService homeworkAssignmentService;
+    private final HomeworkTypeService homeworkTypeService;
     
     public CorrectionRecordService(CorrectionRecordRepository correctionRecordRepository, 
                                    StudentRepository studentRepository,
-                                   HomeworkAssignmentService homeworkAssignmentService) {
+                                   HomeworkAssignmentService homeworkAssignmentService,
+                                   HomeworkTypeService homeworkTypeService) {
         this.correctionRecordRepository = correctionRecordRepository;
         this.studentRepository = studentRepository;
         this.homeworkAssignmentService = homeworkAssignmentService;
+        this.homeworkTypeService = homeworkTypeService;
     }
     
     public List<CorrectionRecord> findByDateAndType(Date date, Integer homeworkTypeId) {
@@ -40,6 +44,7 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
                 record.setDate(date);
                 record.setStudentId(student.getId());
                 record.setHomeworkTypeId(homeworkTypeId);
+                record.setSubjectId(getSubjectIdByHomeworkType(homeworkTypeId)); // 设置科目ID
                 record.setCorrected(false);
                 correctionRecordRepository.insert(record);
             }
@@ -52,6 +57,10 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     
     public List<CorrectionRecord> findUnfinishedByStudentAndType(Integer studentId, Integer homeworkTypeId) {
         return correctionRecordRepository.findUnfinishedByStudentAndType(studentId, homeworkTypeId);
+    }
+    
+    public List<CorrectionRecord> findUnfinishedByStudentAndSubject(Integer studentId, Integer subjectId) {
+        return correctionRecordRepository.findUnfinishedByStudentAndSubject(studentId, subjectId);
     }
     
     public List<CorrectionRecord> findUnfinishedByStudentAllTypes(Integer studentId) {
@@ -71,6 +80,11 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
     public CorrectionRecord saveRecord(CorrectionRecord correctionRecord) {
         boolean isNewRecord = correctionRecord.getId() == null;
         
+        // 如果是新记录且没有设置subjectId，则根据homeworkTypeId设置
+        if (isNewRecord && correctionRecord.getSubjectId() == null) {
+            correctionRecord.setSubjectId(getSubjectIdByHomeworkType(correctionRecord.getHomeworkTypeId()));
+        }
+        
         if (!isNewRecord) {
             correctionRecordRepository.updateById(correctionRecord);
         } else {
@@ -86,6 +100,15 @@ public class CorrectionRecordService extends ServiceImpl<CorrectionRecordReposit
         }
         
         return correctionRecord;
+    }
+    
+    /**
+     * 根据作业类型ID获取科目ID
+     * @param homeworkTypeId 作业类型ID
+     * @return 科目ID
+     */
+    private Integer getSubjectIdByHomeworkType(Integer homeworkTypeId) {
+        return homeworkTypeService.getSubjectIdByHomeworkType(homeworkTypeId);
     }
     
     /**

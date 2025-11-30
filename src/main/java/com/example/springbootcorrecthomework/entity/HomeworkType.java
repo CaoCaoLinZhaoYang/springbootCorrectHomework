@@ -11,4 +11,5 @@ public class HomeworkType {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String name;
+    private Integer subjectId;
 }

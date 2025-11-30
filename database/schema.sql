@@ -16,6 +16,7 @@ CREATE TABLE students (
 CREATE TABLE homework_types (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL COMMENT '作业类型名称',
+    subject_id INT NOT NULL DEFAULT 1 COMMENT '科目ID，1-语文，2-数学，3-英语',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -24,7 +25,6 @@ CREATE TABLE homework_contents (
     id INT PRIMARY KEY AUTO_INCREMENT,
     date DATE NOT NULL COMMENT '日期',
     homework_type_id INT NOT NULL COMMENT '作业类型ID',
-    content TEXT COMMENT '作业内容',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (homework_type_id) REFERENCES homework_types(id),
     UNIQUE KEY unique_date_type (date, homework_type_id)
@@ -46,12 +46,20 @@ CREATE TABLE correction_records (
     date DATE NOT NULL COMMENT '日期',
     student_id INT NOT NULL COMMENT '学生ID',
     homework_type_id INT NOT NULL COMMENT '作业类型ID',
+    subject_id INT NOT NULL DEFAULT 1 COMMENT '科目ID，1-语文，2-数学，3-英语',
     corrected BOOLEAN DEFAULT FALSE COMMENT '是否已订正',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES students(id),
     FOREIGN KEY (homework_type_id) REFERENCES homework_types(id),
     UNIQUE KEY unique_student_date_type (student_id, date, homework_type_id)
+);
+
+-- 创建科目表
+CREATE TABLE subjects (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL COMMENT '科目名称',
+    type INT NOT NULL COMMENT '科目类型，1-语文，2-数学，3-英语'
 );
 
 -- 插入学生数据（53位学生）
@@ -110,12 +118,18 @@ INSERT INTO students (student_number, name, pinyin_initials) VALUES
 ('52', '周嘉鸿', 'zjh'),
 ('53', '郭钰莹', 'gyy');
 
+-- 插入科目数据
+INSERT INTO subjects (name, type) VALUES 
+('语文', 1),
+('数学', 2),
+('英语', 3);
+
 -- 插入作业本类型
-INSERT INTO homework_types (name) VALUES
-('听写本'),
-('生字本'),
-('词语本'),
-('综合本'),
-('家默本'),
-('数学通关题'),
-('英语听写');
+INSERT INTO homework_types (name, subject_id) VALUES
+('听写本', 1),
+('生字本', 1),
+('词语本', 1),
+('综合本', 1),
+('家默本', 1),
+('数学通关题', 2),
+('英语听写', 3);

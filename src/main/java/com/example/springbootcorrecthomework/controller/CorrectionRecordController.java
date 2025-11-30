@@ -73,7 +73,11 @@ public class CorrectionRecordController {
     
     @GetMapping("/studentUnfinishedAllTypes")
     public List<CorrectionRecord> getStudentUnfinishedAllTypes(
-            @RequestParam Integer studentId) {
+            @RequestParam Integer studentId,
+            @RequestParam(required = false, defaultValue = "1") Integer subjectId) {
+        if (subjectId != null) {
+            return correctionRecordService.findUnfinishedByStudentAndSubject(studentId, subjectId);
+        }
         return correctionRecordService.findUnfinishedByStudentAllTypes(studentId);
     }
     

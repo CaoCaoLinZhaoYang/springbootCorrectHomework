@@ -708,7 +708,6 @@
                 this.updateTime();
                 setInterval(this.updateTime, 1000);
                 this.loadStudents();
-                this.loadHomeworkTypes();
                 
                 // 从sessionStorage恢复保存的日期、作业类型和科目
                 const savedDate = sessionStorage.getItem('selectedDate');
@@ -719,15 +718,33 @@
                     this.currentDate = savedDate;
                 }
                 
-                if (savedType) {
-                    this.selectedType = parseInt(savedType);
-                }
-                
                 if (savedSubjectIndex) {
                     this.subjectIndex = parseInt(savedSubjectIndex);
                 }
                 
-                this.loadData();
+                // 先加载作业类型，再加载数据
+                this.loadHomeworkTypes().then(() => {
+                    // 恢复保存的作业类型（如果有）
+                    if (savedType) {
+                        const typeId = parseInt(savedType);
+                        // 确保该作业类型在当前科目下存在
+                        if (this.homeworkTypes.some(type => type.id === typeId)) {
+                            this.selectedType = typeId;
+                        } else {
+                            // 如果不存在，则使用第一个作业类型
+                            if (this.homeworkTypes.length > 0) {
+                                this.selectedType = this.homeworkTypes[0].id;
+                            }
+                        }
+                    } else {
+                        // 如果没有保存的类型，则使用第一个作业类型
+                        if (this.homeworkTypes.length > 0) {
+                            this.selectedType = this.homeworkTypes[0].id;
+                        }
+                    }
+                    
+                    this.loadData();
+                });
                 
                 // 添加全局mouseup事件监听器
                 document.addEventListener('mouseup', this.recordPressEndBound);
@@ -830,9 +847,13 @@
                         });
                 },
                 loadHomeworkTypes() {
-                    return axios.get('/api/homeworkTypes')
+                    return axios.get('/api/homeworkTypes?subjectId=' + (this.subjectIndex + 1))
                         .then(response => {
                             this.homeworkTypes = response.data;
+                            // 如果当前选中的作业类型不在新的列表中，则重置为第一个类型
+                            if (this.homeworkTypes.length > 0 && !this.homeworkTypes.some(type => type.id === this.selectedType)) {
+                                this.selectedType = this.homeworkTypes[0].id;
+                            }
                         });
                 },
                 loadData() {
@@ -997,7 +1018,7 @@
                 },
                 handleSelectStudent(item) {
                     // 获取学生历史欠交记录
-                    axios.get(`/api/correctionRecords/studentUnfinishedAllTypes?studentId=${item.id}`)
+                    axios.get(`/api/correctionRecords/studentUnfinishedAllTypes?studentId=${item.id}&subjectId=${this.subjectIndex + 1}`)
                         .then(response => {
                             // 过滤掉未来日期的记录
                             const today = new Date();
@@ -1322,13 +1343,17 @@
                 switchSubject() {
                     // 切换科目
                     this.subjectIndex = (this.subjectIndex + 1) % this.subjects.length;
+                    // 重新加载作业类型
+                    this.loadHomeworkTypes().then(() => {
+                        // 重新加载数据
+                        this.loadData();
+                    });
                     // 弹出消息提示
                     this.$message({
-                        message: '该功能老师还在开发中~',
-                        type: 'info',
-                        duration: 2000
+                        message: '已切换到' + this.currentSubject,
+                        type: 'success',
+                        duration: 1000
                     });
-                    // 可以在这里添加其他与科目切换相关的逻辑
                 },
                 
                 // 记录按下开始时间并启动定时器
