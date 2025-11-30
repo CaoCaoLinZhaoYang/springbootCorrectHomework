@@ -483,6 +483,20 @@
             transition: all 0.2s ease;
         }
         
+        /* 表格行背景色样式 */
+        .group-row-light {
+            background-color: #d0e6c9 !important;
+        }
+        
+        .group-row-dark {
+            background-color: #e0e0e0 !important;
+        }
+        
+        /* 禁用表格行hover效果 */
+        .el-table--enable-row-hover .el-table__body tr:hover > td {
+            background-color: transparent !important;
+        }
+        
         /* 弹窗中表格的特殊样式 */
         .student-history-dialog .el-table .el-button--danger,
         .unfinished-students-dialog .el-table .el-button--danger {
@@ -817,7 +831,7 @@
                     作业类型降序
                 </el-button>
             </div>
-            <el-table :data="studentHistoryRecords" style="width: 100%">
+            <el-table :data="studentHistoryRecords" style="width: 100%" :row-class-name="tableRowClassName">
                 <el-table-column prop="date" label="日期" width="120">
                     <template slot-scope="scope">
                         {{ formatDate(scope.row.date) }}
@@ -862,7 +876,7 @@
                     学号降序
                 </el-button>
             </div>
-            <el-table :data="unfinishedStudents" style="width: 100%" :max-height="400">
+            <el-table :data="unfinishedStudents" style="width: 100%" :max-height="400" :row-class-name="tableRowClassNameUnfinished">
                 <el-table-column prop="date" label="日期" width="120"></el-table-column>
                 <el-table-column prop="weekDay" label="星期" width="80"></el-table-column>
                 <el-table-column prop="studentNumber" label="学号" width="80"></el-table-column>
@@ -1071,6 +1085,84 @@
                     const month = String(date.getMonth() + 1).padStart(2, '0');
                     const day = String(date.getDate()).padStart(2, '0');
                     return `${year}-${month}-${day}`;
+                },
+                tableRowClassName({row, rowIndex}) {
+                    // 为学生历史欠交记录表格添加行样式
+                    if (this.studentHistoryRecords && this.studentHistoryRecords.length > 0) {
+                        // 根据当前排序字段确定分组键
+                        let groupKey;
+                        if (this.studentHistorySortField === 'date') {
+                            groupKey = row.date;
+                        } else if (this.studentHistorySortField === 'typeName') {
+                            groupKey = row.typeName;
+                        }
+                        
+                        // 如果有分组键，则为相同分组的行添加相同的背景色类
+                        if (groupKey !== undefined) {
+                            // 计算该分组键在所有分组中的索引，用于确定背景色
+                            const uniqueGroups = [];
+                            for (let i = 0; i < this.studentHistoryRecords.length; i++) {
+                                let key;
+                                if (this.studentHistorySortField === 'date') {
+                                    key = this.studentHistoryRecords[i].date;
+                                } else if (this.studentHistorySortField === 'typeName') {
+                                    key = this.studentHistoryRecords[i].typeName;
+                                }
+                                
+                                if (!uniqueGroups.includes(key)) {
+                                    uniqueGroups.push(key);
+                                }
+                            }
+                            
+                            const groupIndex = uniqueGroups.indexOf(groupKey);
+                            // 使用不同的背景色类
+                            if (groupIndex % 2 === 0) {
+                                return 'group-row-light';
+                            } else {
+                                return 'group-row-dark';
+                            }
+                        }
+                    }
+                    return '';
+                },
+                tableRowClassNameUnfinished({row, rowIndex}) {
+                    // 为历史欠交学生表格添加行样式
+                    if (this.unfinishedStudents && this.unfinishedStudents.length > 0) {
+                        // 根据当前排序字段确定分组键
+                        let groupKey;
+                        if (this.unfinishedStudentsSortField === 'date') {
+                            groupKey = row.date;
+                        } else if (this.unfinishedStudentsSortField === 'studentNumber') {
+                            groupKey = row.studentNumber;
+                        }
+                        
+                        // 如果有分组键，则为相同分组的行添加相同的背景色类
+                        if (groupKey !== undefined) {
+                            // 计算该分组键在所有分组中的索引，用于确定背景色
+                            const uniqueGroups = [];
+                            for (let i = 0; i < this.unfinishedStudents.length; i++) {
+                                let key;
+                                if (this.unfinishedStudentsSortField === 'date') {
+                                    key = this.unfinishedStudents[i].date;
+                                } else if (this.unfinishedStudentsSortField === 'studentNumber') {
+                                    key = this.unfinishedStudents[i].studentNumber;
+                                }
+                                
+                                if (!uniqueGroups.includes(key)) {
+                                    uniqueGroups.push(key);
+                                }
+                            }
+                            
+                            const groupIndex = uniqueGroups.indexOf(groupKey);
+                            // 使用不同的背景色类
+                            if (groupIndex % 2 === 0) {
+                                return 'group-row-light';
+                            } else {
+                                return 'group-row-dark';
+                            }
+                        }
+                    }
+                    return '';
                 },
                 updateTime() {
                     const now = new Date();
