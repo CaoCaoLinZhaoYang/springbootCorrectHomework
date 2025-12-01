@@ -22,9 +22,16 @@ public class HomeworkContentService extends ServiceImpl<HomeworkContentRepositor
     
     // 修复save方法与父类方法签名冲突的问题
     public HomeworkContent saveContent(HomeworkContent homeworkContent) {
-        if (homeworkContent.getId() != null) {
+        // 先检查是否存在相同日期和类型的记录
+        HomeworkContent existingContent = homeworkContentRepository.findByDateAndType(
+            homeworkContent.getDate(), homeworkContent.getHomeworkTypeId());
+        
+        if (existingContent != null) {
+            // 如果存在，则更新现有记录
+            homeworkContent.setId(existingContent.getId());
             homeworkContentRepository.updateById(homeworkContent);
         } else {
+            // 如果不存在，则插入新记录
             homeworkContentRepository.insert(homeworkContent);
         }
         return homeworkContent;

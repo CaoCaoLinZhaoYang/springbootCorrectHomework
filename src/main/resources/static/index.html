@@ -907,6 +907,16 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip></el-table-column>
+                <el-table-column label="功能" width="120">
+                    <template slot-scope="scope">
+                        <el-button 
+                            size="mini" 
+                            type="primary" 
+                            @click="editHomeworkContent(scope.row)">
+                            修改内容
+                        </el-button>
+                    </template>
+                </el-table-column>
             </el-table>
         </el-dialog>
         
@@ -950,6 +960,16 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip></el-table-column>
+                <el-table-column label="功能" width="120">
+                    <template slot-scope="scope">
+                        <el-button 
+                            size="mini" 
+                            type="primary" 
+                            @click="editUnfinishedStudentHomeworkContent(scope.row)">
+                            修改内容
+                        </el-button>
+                    </template>
+                </el-table-column>
             </el-table>
         </el-dialog>
         
@@ -1026,7 +1046,10 @@
                                 picker.$emit('pick', new Date());
                             }
                         }]
-                    }
+                    },
+                    // 编辑作业内容相关
+                    editingRow: null, // 当前正在编辑的行
+                    editingRowIndex: -1 // 当前正在编辑的行索引
                 };
             },
             computed: {
@@ -1527,60 +1550,46 @@
                                     };
                                 });
 
-                            // 为每个日期获取作业内容
-                            const dates = [...new Set(studentHistoryRecords.map(r => r.date))];
-                            const contentPromises = dates.map(date => {
+                            // 为每条记录获取对应的作业内容（每条记录单独获取，因为同一天可能有多种作业类型）
+                            const contentPromises = studentHistoryRecords.map(record => {
                                 // 确保日期格式为 yyyy-MM-dd
-                                let formattedDate = date;
-                                if (typeof date === 'string' && date.includes('T')) {
+                                let formattedDate = record.date;
+                                if (typeof record.date === 'string' && record.date.includes('T')) {
                                     // 如果是ISO格式日期，转换为 yyyy-MM-dd
-                                    const d = new Date(date);
+                                    const d = new Date(record.date);
                                     formattedDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
                                 }
-                                // 为每条记录获取对应的作业类型内容
-                                const record = studentHistoryRecords.find(r => r.date === date);
-                                if (record) {
-                                    return axios.get(`/api/homeworkContents?date=${formattedDate}&typeId=${record.homeworkTypeId}`)
-                                        .then(response => {
-                                            // 检查响应状态码，204表示无内容
-                                            if (response.status === 204) {
-                                                return { data: null };
-                                            } else {
-                                                return response;
-                                            }
-                                        })
-                                        .catch(() => ({ data: null })); // 处理没有作业内容的情况
-                                }
-                                return Promise.resolve({ data: null });
+                                
+                                return axios.get(`/api/homeworkContents?date=${formattedDate}&typeId=${record.homeworkTypeId}`)
+                                    .then(response => {
+                                        // 检查响应状态码，204表示无内容
+                                        if (response.status === 204) {
+                                            return { data: null };
+                                        } else {
+                                            return response;
+                                        }
+                                    })
+                                    .catch(() => ({ data: null })); // 处理没有作业内容的情况
                             });
 
                             return Promise.all(contentPromises)
                                 .then(results => {
-                                    const contentMap = {};
-                                    studentHistoryRecords.forEach((record, index) => {
+                                    // 将作业内容添加到学生记录中
+                                    this.studentHistoryRecords = studentHistoryRecords.map((record, index) => {
                                         let recordDate = record.date;
                                         if (typeof recordDate === 'string' && recordDate.includes('T')) {
                                             const d = new Date(recordDate);
                                             recordDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
                                         }
-                                        const key = `${recordDate}-${record.homeworkTypeId}`;
-                                        // 检查results[index]是否存在再访问其data属性
+                                        
+                                        // 从结果中获取对应的作业内容
                                         const result = results[index];
                                         const contentData = result && result.data;
-                                        contentMap[key] = contentData ? contentData.content : '';
-                                    });
-
-                                    // 将作业内容添加到学生记录中
-                                    this.studentHistoryRecords = studentHistoryRecords.map(record => {
-                                        let recordDate = record.date;
-                                        if (typeof recordDate === 'string' && recordDate.includes('T')) {
-                                            const d = new Date(recordDate);
-                                            recordDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
-                                        }
-                                        const key = `${recordDate}-${record.homeworkTypeId}`;
+                                        const content = contentData ? contentData.content : '';
+                                        
                                         return {
                                             ...record,
-                                            content: contentMap[key] || ''
+                                            content: content || ''
                                         };
                                     });
 
@@ -1599,11 +1608,10 @@
                                 });
                         })
                         .catch((e) => {
-                            console.error('22222222');
-                            console.error(e);
+                            console.error('获取学生历史欠交记录失败:', e);
                             this.$message({
                                 type: 'error',
-                                message: '获取数据失败1'
+                                message: '获取数据失败: ' + (e.response?.data?.message || e.message || '未知错误')
                             });
                         });
                 },
@@ -1675,7 +1683,7 @@
                             console.error('获取未完成学生数据失败:', error);
                             this.$message({
                                 type: 'error',
-                                message: '获取数据失败2'
+                                message: '获取数据失败: ' + (error.response?.data?.message || error.message || '未知错误')
                             });
                         });
                 },
@@ -1916,24 +1924,219 @@
                         this.isLongPressTriggered = true; // 设置长按标志
                         
                         // 显示全局Popover
-                        this.contextMenuVisible = true;
-                        
-                        // 设置popover位置为鼠标位置
-                        this.$nextTick(() => {
-                            const popover = this.$refs.globalPopover;
-                            if (popover && popover.$el) {
-                                const popper = popover.$el;
-                                popper.style.position = 'fixed';
-                                popper.style.left = this.mousePosition.x + 'px';
-                                popper.style.top = this.mousePosition.y + 'px';
-                                popper.style.transform = 'translate(0, 0)';
-                            }
-                        });
-                        
-                        // 添加全局点击监听器，用于隐藏popover
-                        this.addGlobalClickListener();
+                        this.showPopover();
                     }, 1000);
                 },
+                // 取消长按事件
+                cancelLongPress() {
+                    clearTimeout(this.longPressTimer);
+                    this.isLongPressTriggered = false;
+                },
+                // 处理长按事件
+                handleLongPress() {
+                    if (this.isLongPressTriggered) {
+                        this.contextMenuVisible = true;
+                        this.globalClickListener = (event) => {
+                            if (!this.$refs.contextMenu.contains(event.target)) {
+                                this.contextMenuVisible = false;
+                                document.removeEventListener('mousedown', this.globalClickListener);
+                            }
+                        };
+                        document.addEventListener('mousedown', this.globalClickListener);
+                    }
+                },
+                // 彻查学生作业历史
+                checkStudentHistory() {
+                    this.contextMenuVisible = false;
+                    // 移除全局点击监听器
+                    if (this.globalClickListener) {
+                        document.removeEventListener('mousedown', this.globalClickListener);
+                    }
+                    if (this.selectedStudent) {
+                        this.handleSelectStudent(this.selectedStudent);
+                    }
+                },
+                
+                // 编辑学生历史欠交记录的作业内容
+                editHomeworkContent(row) {
+                    // 保存当前编辑的行
+                    this.editingRow = row;
+                    
+                    // 将当前行的作业内容复制到临时变量
+                    this.tempHomeworkContent = row.content || '';
+                    // 显示作业内容输入弹窗
+                    this.homeworkContentDialogVisible = true;
+                },
+                
+                // 编辑历史欠交学生的作业内容
+                editUnfinishedStudentHomeworkContent(row) {
+                    // 保存当前编辑的行
+                    this.editingRow = row;
+                    
+                    // 将当前行的作业内容复制到临时变量
+                    this.tempHomeworkContent = row.content || '';
+                    // 显示作业内容输入弹窗
+                    this.homeworkContentDialogVisible = true;
+                },
+                
+                // 保存从弹窗中编辑的作业内容
+                saveHomeworkContentFromDialog() {
+                    // 更新当前编辑行的内容
+                    if (this.editingRow) {
+                        // 如果是学生历史欠交记录弹窗
+                        if (this.studentHistoryRecords.includes(this.editingRow)) {
+                            // 构造保存作业内容所需的数据
+                            const contentData = {
+                                date: this.editingRow.date,
+                                homeworkTypeId: this.editingRow.homeworkTypeId,
+                                content: this.tempHomeworkContent
+                            };
+                            
+                            console.log('正在保存作业内容:', contentData);
+                            
+                            // 保存作业内容到服务器
+                            axios.post('/api/homeworkContents', contentData)
+                                .then(response => {
+                                    // 保存成功后，更新当前行的内容
+                                    this.editingRow.content = this.tempHomeworkContent;
+                                    console.log('当前编辑行已更新:', this.editingRow);
+                                    
+                                    // 同时更新同一弹窗中具有相同日期和作业类型的所有记录
+                                    let updatedCount = 0;
+                                    for (let i = 0; i < this.studentHistoryRecords.length; i++) {
+                                        const record = this.studentHistoryRecords[i];
+                                        // 确保日期格式一致后再比较
+                                        const editingRowDate = new Date(this.editingRow.date).toDateString();
+                                        const recordDate = new Date(record.date).toDateString();
+                                        
+                                        console.log('比较记录:', {
+                                            index: i,
+                                            recordDate: recordDate,
+                                            editingRowDate: editingRowDate,
+                                            recordTypeId: record.homeworkTypeId,
+                                            editingRowTypeId: this.editingRow.homeworkTypeId,
+                                            dateMatch: recordDate === editingRowDate,
+                                            typeMatch: record.homeworkTypeId === this.editingRow.homeworkTypeId
+                                        });
+                                        
+                                        if (recordDate === editingRowDate && 
+                                            record.homeworkTypeId === this.editingRow.homeworkTypeId) {
+                                            this.$set(this.studentHistoryRecords, i, {
+                                                ...record,
+                                                content: this.tempHomeworkContent
+                                            });
+                                            updatedCount++;
+                                            console.log('更新记录:', i);
+                                        }
+                                    }
+                                    console.log('总共更新了', updatedCount, '条记录');
+                                    
+                                    this.$message({
+                                        type: 'success',
+                                        message: '作业内容保存成功!'
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('保存作业内容失败:', error);
+                                    this.$message({
+                                        type: 'error',
+                                        message: '作业内容保存失败: ' + (error.response?.data?.message || error.message || '未知错误')
+                                    });
+                                })
+                                .finally(() => {
+                                    // 隐藏弹窗
+                                    this.homeworkContentDialogVisible = false;
+                                    // 清空编辑行
+                                    this.editingRow = null;
+                                });
+                        } 
+                        // 如果是历史欠交学生弹窗
+                        else if (this.unfinishedStudents.includes(this.editingRow)) {
+                            // 构造保存作业内容所需的数据
+                            const contentData = {
+                                date: this.editingRow.date,
+                                homeworkTypeId: this.selectedType,
+                                content: this.tempHomeworkContent
+                            };
+                            
+                            console.log('正在保存作业内容:', contentData);
+                            
+                            // 保存作业内容到服务器
+                            axios.post('/api/homeworkContents', contentData)
+                                .then(response => {
+                                    // 保存成功后，更新当前行的内容
+                                    this.editingRow.content = this.tempHomeworkContent;
+                                    console.log('当前编辑行已更新:', this.editingRow);
+                                    
+                                    // 同时更新同一弹窗中具有相同日期的所有记录（因为这个弹窗中所有记录都是同一作业类型）
+                                    let updatedCount = 0;
+                                    for (let i = 0; i < this.unfinishedStudents.length; i++) {
+                                        const student = this.unfinishedStudents[i];
+                                        // 确保日期格式一致后再比较
+                                        console.log('比较记录:', {
+                                            index: i,
+                                            recordDate: student.date,
+                                            editingRowDate: this.editingRow.date,
+                                            dateMatch: student.date === this.editingRow.date
+                                        });
+                                        
+                                        if (student.date === this.editingRow.date) {
+                                            this.$set(this.unfinishedStudents, i, {
+                                                ...student,
+                                                content: this.tempHomeworkContent
+                                            });
+                                            updatedCount++;
+                                            console.log('更新记录:', i);
+                                        }
+                                    }
+                                    console.log('总共更新了', updatedCount, '条记录');
+                                    
+                                    this.$message({
+                                        type: 'success',
+                                        message: '作业内容保存成功!'
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('保存作业内容失败:', error);
+                                    this.$message({
+                                        type: 'error',
+                                        message: '作业内容保存失败: ' + (error.response?.data?.message || error.message || '未知错误')
+                                    });
+                                })
+                                .finally(() => {
+                                    // 隐藏弹窗
+                                    this.homeworkContentDialogVisible = false;
+                                    // 清空编辑行
+                                    this.editingRow = null;
+                                });
+                        }
+                    } else {
+                        // 如果没有编辑行，直接隐藏弹窗
+                        this.homeworkContentDialogVisible = false;
+                    }
+                },
+                
+                // 显示全局Popover
+                showPopover() {
+                    // 显示全局Popover
+                    this.contextMenuVisible = true;
+                    
+                    // 设置popover位置为鼠标位置
+                    this.$nextTick(() => {
+                        const popover = this.$refs.globalPopover;
+                        if (popover && popover.$el) {
+                            const popper = popover.$el;
+                            popper.style.position = 'fixed';
+                            popper.style.left = this.mousePosition.x + 'px';
+                            popper.style.top = this.mousePosition.y + 'px';
+                            popper.style.transform = 'translate(0, 0)';
+                        }
+                    });
+                    
+                    // 添加全局点击监听器，用于隐藏popover
+                    this.addGlobalClickListener();
+                },
+                
                 // 取消长按检测
                 cancelLongPress() {
                     console.log('取消长按检测');
