@@ -866,7 +866,7 @@
         </div>
         
         <!-- 学生历史欠交记录对话框 -->
-        <el-dialog :title="'学生历史欠交记录 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" width="60%" class="student-history-dialog">
+        <el-dialog :title="'彻查作业 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" width="60%" class="student-history-dialog">
             <div style="margin-bottom: 10px;">
                 <el-button 
                     @click="sortStudentHistory('date', 'asc')"
@@ -921,7 +921,7 @@
         </el-dialog>
         
         <!-- 历史欠交学生对话框 -->
-        <el-dialog title="历史欠交学生" :visible.sync="unfinishedStudentsDialogVisible" width="70%" class="unfinished-students-dialog">
+        <el-dialog :title="currentTypeName + ' - 历史欠交学生'" :visible.sync="unfinishedStudentsDialogVisible" width="70%" class="unfinished-students-dialog">
             <div style="margin-bottom: 10px;">
                 <el-button 
                     @click="sortUnfinishedStudents('date', 'asc')"
@@ -1077,6 +1077,11 @@
                         default:
                             return 'math-subject';
                     }
+                },
+                currentTypeName() {
+                    // 获取当前选中作业类型的名称
+                    const currentType = this.homeworkTypes.find(type => type.id === this.selectedType);
+                    return currentType ? currentType.name : '';
                 }
             },
             watch: {
