@@ -930,14 +930,22 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip></el-table-column>
-                <el-table-column label="功能" width="120">
+                <el-table-column label="功能" width="200">
                     <template slot-scope="scope">
-                        <el-button 
-                            size="mini" 
-                            type="primary" 
-                            @click="editHomeworkContent(scope.row)">
-                            修改内容
-                        </el-button>
+                        <div style="display: flex; gap: 5px;">
+                            <el-button 
+                                size="mini" 
+                                type="primary" 
+                                @click="editHomeworkContent(scope.row)">
+                                修改内容
+                            </el-button>
+                            <el-button 
+                                size="mini" 
+                                type="success" 
+                                @click="locateToRecord(scope.row)">
+                                定位
+                            </el-button>
+                        </div>
                     </template>
                 </el-table-column>
             </el-table>
@@ -983,14 +991,22 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip></el-table-column>
-                <el-table-column label="功能" width="120">
+                <el-table-column label="功能" width="200">
                     <template slot-scope="scope">
-                        <el-button 
-                            size="mini" 
-                            type="primary" 
-                            @click="editUnfinishedStudentHomeworkContent(scope.row)">
-                            修改内容
-                        </el-button>
+                        <div style="display: flex; gap: 5px;">
+                            <el-button 
+                                size="mini" 
+                                type="primary" 
+                                @click="editHomeworkContent(scope.row)">
+                                修改内容
+                            </el-button>
+                            <el-button 
+                                size="mini" 
+                                type="success" 
+                                @click="locateToRecord(scope.row)">
+                                定位
+                            </el-button>
+                        </div>
                     </template>
                 </el-table-column>
             </el-table>
@@ -2192,6 +2208,36 @@
                     
                     // 添加全局点击监听器，用于隐藏popover
                     this.addGlobalClickListener();
+                },
+                
+                // 定位到学生历史欠交记录
+                locateToRecord(row) {
+                    // 关闭弹窗
+                    this.studentHistoryDialogVisible = false;
+                    
+                    // 设置日期
+                    this.currentDate = row.date;
+                    
+                    // 设置作业类型
+                    this.selectedType = row.homeworkTypeId;
+                    
+                    // 刷新数据
+                    this.loadData();
+                },
+                
+                // 定位到历史欠交学生记录
+                locateToUnfinishedRecord(row) {
+                    // 关闭弹窗
+                    this.unfinishedStudentsDialogVisible = false;
+                    
+                    // 设置日期
+                    this.currentDate = row.date;
+                    
+                    // 设置作业类型（历史欠交学生弹窗中的所有记录都是同一作业类型）
+                    // this.selectedType 保持不变，因为我们已经在正确的作业类型下了
+                    
+                    // 刷新数据
+                    this.loadData();
                 },
                 // 添加全局点击监听器
                 addGlobalClickListener() {
