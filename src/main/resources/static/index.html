@@ -1992,32 +1992,18 @@
                                 content: this.tempHomeworkContent
                             };
                             
-                            console.log('正在保存作业内容:', contentData);
-                            
                             // 保存作业内容到服务器
                             axios.post('/api/homeworkContents', contentData)
                                 .then(response => {
                                     // 保存成功后，更新当前行的内容
                                     this.editingRow.content = this.tempHomeworkContent;
-                                    console.log('当前编辑行已更新:', this.editingRow);
                                     
                                     // 同时更新同一弹窗中具有相同日期和作业类型的所有记录
-                                    let updatedCount = 0;
                                     for (let i = 0; i < this.studentHistoryRecords.length; i++) {
                                         const record = this.studentHistoryRecords[i];
                                         // 确保日期格式一致后再比较
                                         const editingRowDate = new Date(this.editingRow.date).toDateString();
                                         const recordDate = new Date(record.date).toDateString();
-                                        
-                                        console.log('比较记录:', {
-                                            index: i,
-                                            recordDate: recordDate,
-                                            editingRowDate: editingRowDate,
-                                            recordTypeId: record.homeworkTypeId,
-                                            editingRowTypeId: this.editingRow.homeworkTypeId,
-                                            dateMatch: recordDate === editingRowDate,
-                                            typeMatch: record.homeworkTypeId === this.editingRow.homeworkTypeId
-                                        });
                                         
                                         if (recordDate === editingRowDate && 
                                             record.homeworkTypeId === this.editingRow.homeworkTypeId) {
@@ -2025,11 +2011,8 @@
                                                 ...record,
                                                 content: this.tempHomeworkContent
                                             });
-                                            updatedCount++;
-                                            console.log('更新记录:', i);
                                         }
                                     }
-                                    console.log('总共更新了', updatedCount, '条记录');
                                     
                                     this.$message({
                                         type: 'success',
@@ -2037,7 +2020,6 @@
                                     });
                                 })
                                 .catch(error => {
-                                    console.error('保存作业内容失败:', error);
                                     this.$message({
                                         type: 'error',
                                         message: '作业内容保存失败: ' + (error.response?.data?.message || error.message || '未知错误')
@@ -2059,37 +2041,22 @@
                                 content: this.tempHomeworkContent
                             };
                             
-                            console.log('正在保存作业内容:', contentData);
-                            
                             // 保存作业内容到服务器
                             axios.post('/api/homeworkContents', contentData)
                                 .then(response => {
                                     // 保存成功后，更新当前行的内容
                                     this.editingRow.content = this.tempHomeworkContent;
-                                    console.log('当前编辑行已更新:', this.editingRow);
                                     
                                     // 同时更新同一弹窗中具有相同日期的所有记录（因为这个弹窗中所有记录都是同一作业类型）
-                                    let updatedCount = 0;
                                     for (let i = 0; i < this.unfinishedStudents.length; i++) {
                                         const student = this.unfinishedStudents[i];
-                                        // 确保日期格式一致后再比较
-                                        console.log('比较记录:', {
-                                            index: i,
-                                            recordDate: student.date,
-                                            editingRowDate: this.editingRow.date,
-                                            dateMatch: student.date === this.editingRow.date
-                                        });
-                                        
                                         if (student.date === this.editingRow.date) {
                                             this.$set(this.unfinishedStudents, i, {
                                                 ...student,
                                                 content: this.tempHomeworkContent
                                             });
-                                            updatedCount++;
-                                            console.log('更新记录:', i);
                                         }
                                     }
-                                    console.log('总共更新了', updatedCount, '条记录');
                                     
                                     this.$message({
                                         type: 'success',
@@ -2097,7 +2064,6 @@
                                     });
                                 })
                                 .catch(error => {
-                                    console.error('保存作业内容失败:', error);
                                     this.$message({
                                         type: 'error',
                                         message: '作业内容保存失败: ' + (error.response?.data?.message || error.message || '未知错误')
