@@ -1019,10 +1019,11 @@
                 v-model="tempHomeworkContent"
                 ref="homeworkContentInput"
                 style="width: 300px;"
-                :maxlength="200">
+                :maxlength="200"
+                @keyup.enter.native="handleEnterKey">
             </el-input>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="homeworkContentDialogVisible = false">取 消</el-button>
+                <el-button @click="closeHomeworkContentDialog">取 消</el-button>
                 <el-button type="primary" @click="saveHomeworkContentFromDialog">确 定</el-button>
             </span>
         </el-dialog>
@@ -1391,24 +1392,30 @@
                         });
                 },
                 loadData() {
+                    console.log('加载数据，日期: ', this.currentDate, ' 类型ID: ', this.selectedType);
                     // 加载订正记录
                     axios.get(`/api/correctionRecords?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
                             this.correctionRecords = response.data;
+                            console.log('加载订正记录成功: ', this.correctionRecords);
                             this.updateStats();
                         });
 
                     // 加载作业内容
                     axios.get(`/api/homeworkContents?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
+                            console.log('加载作业内容响应: ', response);
                             // 检查响应状态码，204表示无内容
                             if (response.status === 204) {
                                 this.homeworkContent = '';
+                                console.log('作业内容响应状态为204，设置为空字符串');
                             } else {
                                 this.homeworkContent = response.data ? response.data.content : '';
+                                console.log('作业内容加载成功: ', this.homeworkContent);
                             }
                         })
-                        .catch(() => {
+                        .catch(error => {
+                            console.error('加载作业内容失败: ', error);
                             this.homeworkContent = '';
                         });
                     
@@ -1479,30 +1486,68 @@
                     }
                 },
                 saveHomeworkContent() {
+                    console.log('进入saveHomeworkContent方法');
+                    console.log('准备发送请求，参数: ', {
+                        date: this.currentDate,
+                        homeworkTypeId: this.selectedType,
+                        content: this.homeworkContent
+                    });
+                    
                     axios.get(`/api/homeworkContents?date=${this.currentDate}&typeId=${this.selectedType}`)
                         .then(response => {
+                            console.log('GET请求成功，响应: ', response);
                             // 检查响应状态码，204表示无内容
                             let content;
                             if (response.status === 204) {
+                                console.log('响应状态为204，创建新的content对象');
                                 content = {};
                             } else {
+                                console.log('使用响应数据: ', response.data);
                                 content = response.data || {};
                             }
 
                             content.date = this.currentDate;
                             content.homeworkTypeId = this.selectedType;
                             content.content = this.homeworkContent;
+                            
+                            console.log('准备POST更新内容: ', content);
 
                             return axios.post('/api/homeworkContents', content);
                         })
-                        .catch(() => {
+                        .then(response => {
+                            console.log('POST请求成功，响应: ', response);
+                            // 保存成功后的处理
+                            this.$message({
+                                type: 'success',
+                                message: '作业内容保存成功!'
+                            });
+                        })
+                        .catch(error => {
+                            console.log('GET请求失败，准备创建新记录: ', error);
                             // 新建
                             const content = {
                                 date: this.currentDate,
                                 homeworkTypeId: this.selectedType,
                                 content: this.homeworkContent
                             };
-                            return axios.post('/api/homeworkContents', content);
+                            console.log('准备POST创建新记录: ', content);
+                            return axios.post('/api/homeworkContents', content)
+                                .then(response => {
+                                    console.log('POST创建新记录成功，响应: ', response);
+                                    // 保存成功后的处理
+                                    this.$message({
+                                        type: 'success',
+                                        message: '作业内容保存成功!'
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('POST创建新记录失败: ', error);
+                                    // 保存失败的处理
+                                    this.$message({
+                                        type: 'error',
+                                        message: '作业内容保存失败: ' + (error.response?.data?.message || error.message || '未知错误')
+                                    });
+                                });
                         });
                 },
                 resetStatus() {
@@ -1873,28 +1918,45 @@
                         });
                 },
                 showHomeworkContentDialog() {
+                    console.log('显示作业内容弹窗: 当前作业内容为', this.homeworkContent);
                     // 将当前作业内容复制到临时变量
                     this.tempHomeworkContent = this.homeworkContent;
                     // 显示作业内容输入弹窗
                     this.homeworkContentDialogVisible = true;
+                    console.log('作业内容弹窗已显示');
                 },
                 
                 focusHomeworkContent() {
                     // 在弹窗打开后聚焦到文本输入框
                     this.$nextTick(() => {
                         if (this.$refs.homeworkContentInput) {
+                            console.log('聚焦到作业内容输入框');
                             this.$refs.homeworkContentInput.focus();
                         }
                     });
                 },
 
+                handleEnterKey() {
+                    console.log('按回车键保存作业内容');
+                    this.saveHomeworkContentFromDialog();
+                },
+
+                closeHomeworkContentDialog() {
+                    console.log('关闭作业内容弹窗');
+                    this.homeworkContentDialogVisible = false;
+                },
+
                 saveHomeworkContentFromDialog() {
+                    console.log('开始保存作业内容: ', this.tempHomeworkContent);
                     // 将临时变量的值保存到作业内容
                     this.homeworkContent = this.tempHomeworkContent;
-                    // 隐藏弹窗
-                    this.homeworkContentDialogVisible = false;
+                    console.log('作业内容已更新到: ', this.homeworkContent);
                     // 保存作业内容到服务器
                     this.saveHomeworkContent();
+                    console.log('已调用saveHomeworkContent方法');
+                    // 隐藏弹窗
+                    this.homeworkContentDialogVisible = false;
+                    console.log('作业内容弹窗已隐藏');
                 },
                 switchSubject() {
                     // 切换科目
@@ -2025,10 +2087,14 @@
                 
                 // 保存从弹窗中编辑的作业内容
                 saveHomeworkContentFromDialog() {
+                    console.log('调用saveHomeworkContentFromDialog方法');
+                    console.log('当前editingRow:', this.editingRow);
                     // 更新当前编辑行的内容
                     if (this.editingRow) {
+                        console.log('存在editingRow，使用复杂保存逻辑');
                         // 如果是学生历史欠交记录弹窗
                         if (this.studentHistoryRecords.includes(this.editingRow)) {
+                            console.log('处理学生历史欠交记录保存');
                             // 构造保存作业内容所需的数据
                             const contentData = {
                                 date: this.editingRow.date,
@@ -2039,6 +2105,7 @@
                             // 保存作业内容到服务器
                             axios.post('/api/homeworkContents', contentData)
                                 .then(response => {
+                                    console.log('学生历史记录保存成功:', response);
                                     // 保存成功后，更新当前行的内容
                                     this.editingRow.content = this.tempHomeworkContent;
                                     
@@ -2064,6 +2131,7 @@
                                     });
                                 })
                                 .catch(error => {
+                                    console.error('学生历史记录保存失败:', error);
                                     this.$message({
                                         type: 'error',
                                         message: '作业内容保存失败: ' + (error.response?.data?.message || error.message || '未知错误')
@@ -2078,6 +2146,7 @@
                         } 
                         // 如果是历史欠交学生弹窗
                         else if (this.unfinishedStudents.includes(this.editingRow)) {
+                            console.log('处理历史欠交学生记录保存');
                             // 构造保存作业内容所需的数据
                             const contentData = {
                                 date: this.editingRow.date,
@@ -2088,6 +2157,7 @@
                             // 保存作业内容到服务器
                             axios.post('/api/homeworkContents', contentData)
                                 .then(response => {
+                                    console.log('历史欠交学生记录保存成功:', response);
                                     // 保存成功后，更新当前行的内容
                                     this.editingRow.content = this.tempHomeworkContent;
                                     
@@ -2108,6 +2178,7 @@
                                     });
                                 })
                                 .catch(error => {
+                                    console.error('历史欠交学生记录保存失败:', error);
                                     this.$message({
                                         type: 'error',
                                         message: '作业内容保存失败: ' + (error.response?.data?.message || error.message || '未知错误')
@@ -2121,8 +2192,17 @@
                                 });
                         }
                     } else {
-                        // 如果没有编辑行，直接隐藏弹窗
+                        console.log('不存在editingRow，使用主页面保存逻辑');
+                        // 如果没有编辑行，说明是从主页面调用的
+                        // 将临时变量的值保存到作业内容
+                        this.homeworkContent = this.tempHomeworkContent;
+                        console.log('作业内容已更新到: ', this.homeworkContent);
+                        // 保存作业内容到服务器
+                        this.saveHomeworkContent();
+                        console.log('已调用saveHomeworkContent方法');
+                        // 隐藏弹窗
                         this.homeworkContentDialogVisible = false;
+                        console.log('作业内容弹窗已隐藏');
                     }
                 },
                 
