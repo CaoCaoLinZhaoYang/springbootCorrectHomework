@@ -1074,7 +1074,7 @@
                             @contextmenu.native.prevent="showContextMenu($event, student)"
                             class="student-btn"
                             style="text-align: center; overflow: hidden; text-overflow: ellipsis; width: 100%; box-sizing: border-box;">
-                            <span style="text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ student.studentNumber }}.{{ student.name.replace('欧阳', '**') }}</span>
+                            <span style="text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ student.studentNumber }}.{{ student.name }}</span>
                         </el-button>
                         <div v-if="showUnfinishedCount && studentUnfinishedCounts[student.id] && studentUnfinishedCounts[student.id] > 0" 
                              class="unfinished-badge">
