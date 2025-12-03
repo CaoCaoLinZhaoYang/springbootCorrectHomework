@@ -86,6 +86,30 @@
             white-space: nowrap;
         }
         
+        @media (orientation: portrait) {
+            .header {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .header-title {
+                font-size: 22px;
+                margin-bottom: 5px;
+            }
+            
+            .poem {
+                font-size: 16px;
+                margin: 5px 0;
+            }
+            
+            .current-time {
+                font-size: 20px;
+                margin-top: 5px;
+            }
+        }
+        
         @media (orientation: landscape) {
             .header {
                 flex-direction: row;
