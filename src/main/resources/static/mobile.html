@@ -38,14 +38,16 @@
         .header {
             background: linear-gradient(90deg, #409EFF, #64b5f6);
             color: white;
-            padding: 15px;
+            padding: 10px;
             border-radius: 15px;
             margin-bottom: 15px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
+            justify-content: space-between;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            flex-wrap: wrap;
         }
         
         /* 语文主题头部 */
@@ -63,11 +65,10 @@
             background: linear-gradient(90deg, #ff69b4, #ff1493);
         }
         
-        .header h1 {
-            margin: 0 0 10px 0;
+        .header-title {
             font-size: 22px;
-            text-align: center;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            margin: 0;
         }
         
         .poem {
@@ -75,18 +76,37 @@
             font-size: 16px;
             line-height: 1.4;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin: 0 10px;
         }
         
         .current-time {
             font-size: 20px;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+        
+        @media (orientation: landscape) {
+            .header {
+                flex-direction: row;
+            }
+            
+            .header-title {
+                font-size: 20px;
+            }
+            
+            .poem {
+                font-size: 14px;
+            }
+            
+            .current-time {
+                font-size: 18px;
+            }
         }
         
         .controls {
             margin-bottom: 15px;
-            padding: 15px;
+            padding: 10px;
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -102,14 +122,13 @@
         body.math-theme .controls {
             background-color: #f0f8ff;
         }
-        
         /* 英语主题控制区域 */
         body.english-theme .controls {
             background-color: #fff0f5;
         }
         
         .control-group {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         
         .control-group label {
@@ -121,12 +140,16 @@
         
         .date-type-row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 5px;
+            margin-bottom: 8px;
         }
         
         .date-controls {
             flex: 1;
+        }
+        
+        .type-selector-container {
+            width: 100px;
         }
         
         .date-picker-container {
@@ -141,8 +164,31 @@
         
         .nav-buttons .el-button {
             flex: 1;
-            font-size: 14px;
-            padding: 8px 5px;
+            font-size: 13px;
+            padding: 6px 4px;
+        }
+        
+        @media (pointer: coarse) {
+            .nav-buttons {
+                flex-direction: row;
+            }
+            
+            .nav-buttons .el-button {
+                flex: 0 0 auto;
+                width: auto;
+                padding: 6px 8px;
+            }
+        }
+        
+        @media (orientation: portrait) {
+            .nav-buttons {
+                flex-direction: row;
+            }
+            
+            .nav-buttons .el-button {
+                flex: 1;
+                padding: 6px 4px;
+            }
         }
         
         .type-selector-container {
@@ -155,14 +201,14 @@
         
         .action-buttons {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
         .action-buttons .el-button {
             flex: 1;
-            font-size: 14px;
-            padding: 10px 5px;
+            font-size: 13px;
+            padding: 8px 4px;
         }
         
         .search-container {
@@ -188,7 +234,7 @@
         
         .stats {
             background: linear-gradient(135deg, #ffffff, #f0f4f8);
-            padding: 15px;
+            padding: 10px;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
@@ -212,12 +258,12 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 10px;
         }
         
         .stat-item {
             text-align: center;
-            padding: 12px;
+            padding: 8px;
             border-radius: 12px;
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -240,7 +286,7 @@
         }
         
         .stat-number {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
         }
         
@@ -258,30 +304,38 @@
         
         .students-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 3px;
             margin-bottom: 15px;
-            padding: 0 5px;
+            padding: 0 3px;
             box-sizing: border-box;
+            overflow: visible;
+            width: 100%;
+            margin: 0;
         }
         
         @media (orientation: landscape) {
             .students-grid {
-                grid-template-columns: repeat(10, 1fr);
+                grid-template-columns: repeat(10, minmax(0, 1fr));
+                gap: 3px;
+                padding: 0 3px;
+                overflow: visible;
+                width: 100%;
+                margin: 0;
             }
         }
         
         .student-btn {
-            height: 50px;
-            font-size: 14px;
+            height: 45px;
+            font-size: clamp(12px, 2.5vw, 14px);
             font-weight: bold;
             color: #333;
             width: 100%;
             box-sizing: border-box;
-            padding: 5px;
+            padding: 3px;
             text-align: center;
             margin: 0;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 2px solid #e0e0e0;
             background: linear-gradient(135deg, #ffffff, #f8f9fa);
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
@@ -294,19 +348,17 @@
             white-space: nowrap;
         }
         
-        .el-button.unfinished {
-            background: linear-gradient(135deg, #ff7b7b, #ff5252);
-            border: 2px solid #ff6b6b;
-            color: white;
+        .el-button.unfinished,
+        .el-button.finished {
             width: 100%;
-            height: 50px;
-            font-size: 14px;
+            height: 45px;
+            font-size: clamp(12px, 2.5vw, 14px);
             font-weight: bold;
-            padding: 5px;
+            padding: 3px;
             text-align: center;
             margin: 0;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(255, 82, 82, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
@@ -314,34 +366,23 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            box-sizing: border-box;
+        }
+        
+        .el-button.unfinished {
+            background: linear-gradient(135deg, #ff7b7b, #ff5252);
+            border: 2px solid #ff6b6b;
+            color: white;
+            box-shadow: 0 4px 8px rgba(255, 82, 82, 0.3);
         }
         
         .el-button.finished {
             background: linear-gradient(135deg, #67c23a, #4eab29);
             border: 2px solid #67c23a;
             color: white;
-            width: 100%;
-            height: 50px;
-            font-size: 14px;
-            font-weight: bold;
-            padding: 5px;
-            text-align: center;
-            margin: 0;
-            border-radius: 12px;
             box-shadow: 0 4px 8px rgba(103, 194, 58, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
-        }
-
-        }
-        
         .el-button.finished:hover {
             background: linear-gradient(135deg, #7cd94d, #5cb831);
             transform: translateY(-2px);
@@ -349,10 +390,10 @@
         }
         .subject-toggle-btn {
             width: 100%;
-            height: 60px;
-            font-size: 16px;
+            height: 55px;
+            font-size: 15px;
             font-weight: bold;
-            padding: 8px;
+            padding: 6px;
             text-align: center;
             margin: 0;
             border-radius: 12px;
@@ -387,10 +428,10 @@
             border: 2px solid #909399; /* 灰色边框 */
             color: black; /* 黑字 */
             width: 100%;
-            height: 60px;
-            font-size: 16px;
+            height: 55px;
+            font-size: 15px;
             font-weight: bold;
-            padding: 8px;
+            padding: 6px;
             text-align: center;
             margin: 0;
             border-radius: 12px;
@@ -441,21 +482,21 @@
         
         .unfinished-badge {
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: -5px;
+            right: -5px;
             background-color: #FFA500;
             color: white;
             border-radius: 50%;
-            min-width: 24px;
-            height: 24px;
-            font-size: 16px;
+            min-width: 20px;
+            height: 20px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            padding: 0 3px;
-            z-index: 1;
+            padding: 0 2px;
+            z-index: 999;
         }
         
         /* 弹窗样式优化 */
@@ -851,6 +892,25 @@
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            .subject-toggle-btn {
+                height: 50px;
+                font-size: 14px;
+            }
+            
+            .unfinished-count-btn {
+                height: 50px;
+                font-size: 14px;
+            }
+            
+            .stat-number {
+                font-size: 20px;
+            }
+            
+            .action-buttons .el-button {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -859,11 +919,30 @@
             }
             
             .nav-buttons {
-                flex-direction: column;
+                flex-direction: row;
             }
             
             .action-buttons {
-                flex-direction: column;
+                flex-direction: row;
+            }
+            
+            .subject-toggle-btn {
+                height: 45px;
+                font-size: 13px;
+            }
+            
+            .unfinished-count-btn {
+                height: 45px;
+                font-size: 13px;
+            }
+            
+            .stat-number {
+                font-size: 18px;
+            }
+            
+            .action-buttons .el-button {
+                padding: 6px 4px;
+                font-size: 13px;
             }
         }
     </style>
@@ -871,7 +950,7 @@
 <body>
     <div id="app" v-loading.fullscreen.lock="loading">
         <div class="header">
-            <h1>五4班作业订正系统</h1>
+            <h1 class="header-title">五4班作业订正系统</h1>
             <div class="poem">
                 百川东到海，何时复西归？<br>
                 少壮不努力，老大徒伤悲。
@@ -882,6 +961,17 @@
         <div class="controls">
             <div class="control-group">
                 <div class="date-type-row">
+                    <div class="type-selector-container">
+                        <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 100%;">
+                            <el-option
+                                v-for="type in homeworkTypes"
+                                :key="type.id"
+                                :label="type.name"
+                                :value="type.id">
+                            </el-option>
+                        </el-select>
+                    </div>
+                    
                     <div class="date-controls">
                         <div class="date-picker-container">
                             <el-date-picker
@@ -905,17 +995,6 @@
                             <el-button @click="prevAssignment">前一次</el-button>
                             <el-button @click="nextAssignment">后一次</el-button>
                         </div>
-                    </div>
-                    
-                    <div class="type-selector-container">
-                        <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 100%;">
-                            <el-option
-                                v-for="type in homeworkTypes"
-                                :key="type.id"
-                                :label="type.name"
-                                :value="type.id">
-                            </el-option>
-                        </el-select>
                     </div>
                 </div>
                 
@@ -975,7 +1054,7 @@
                         <el-button 
                             @click="toggleUnfinishedCount" 
                             :class="{'unfinished-count-btn': true, 'active': showUnfinishedCount}">
-                            欠交数量2
+                            欠交数量3
                         </el-button>
                     </div>
                 </div>
@@ -983,22 +1062,25 @@
         
             <div class="students-section">
                 <div class="students-grid">
-                    <el-button
+                    <div 
                         v-for="student in sortedStudents"
                         :key="student.id"
-                        :class="getStudentButtonClass(student)"
-                        @click="toggleStudentStatus(student)"
-                        @touchstart.native="recordPressStart(student, $event)"
-                        @touchend.native="recordPressEnd($event)"
-                        @contextmenu.native.prevent="showContextMenu($event, student)"
-                        class="student-btn"
-                        style="position: relative; text-align: center; overflow: hidden; text-overflow: ellipsis;">
-                        <span style="text-align: center; overflow: hidden; text-overflow: ellipsis;">{{ student.studentNumber }}.{{ student.name }}</span>
+                        style="position: relative;">
+                        <el-button
+                            :class="getStudentButtonClass(student)"
+                            @click="toggleStudentStatus(student)"
+                            @touchstart.native="recordPressStart(student, $event)"
+                            @touchend.native="recordPressEnd($event)"
+                            @contextmenu.native.prevent="showContextMenu($event, student)"
+                            class="student-btn"
+                            style="text-align: center; overflow: hidden; text-overflow: ellipsis; width: 100%; box-sizing: border-box;">
+                            <span style="text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ student.studentNumber }}.{{ student.name.replace('欧阳', '**') }}</span>
+                        </el-button>
                         <div v-if="showUnfinishedCount && studentUnfinishedCounts[student.id] && studentUnfinishedCounts[student.id] > 0" 
                              class="unfinished-badge">
                             {{ studentUnfinishedCounts[student.id] > 99 ? '99+' : studentUnfinishedCounts[student.id] }}
                         </div>
-                    </el-button>
+                    </div>
                 </div>
             </div>
         </div>
