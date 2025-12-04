@@ -1095,6 +1095,7 @@
                             @click="toggleStudentStatus(student)"
                             @touchstart.native="recordPressStart(student, $event)"
                             @touchend.native="recordPressEnd($event)"
+                            @touchmove.native="handleTouchMove($event)"
                             @contextmenu.native.prevent="showContextMenu($event, student)"
                             class="student-btn"
                             style="text-align: center; overflow: hidden; text-overflow: ellipsis; width: 100%; box-sizing: border-box;">
@@ -1305,6 +1306,9 @@
                     // popover相关
                     contextMenuVisible: false, // 控制全局popover的显示
                     mousePosition: { x: 0, y: 0 }, // 鼠标位置
+                    // 触摸移动检测
+                    touchStartPosition: { x: 0, y: 0 }, // 触摸开始位置
+                    touchMoveThreshold: 10, // 触摸移动阈值，单位：像素
                     // 日期选择器选项
                     pickerOptions: {
                         shortcuts: [{
@@ -2312,6 +2316,14 @@
                     // 重置长按标志
                     this.isLongPressTriggered = false;
                     
+                    // 保存触摸开始位置
+                    if (event.touches && event.touches[0]) {
+                        this.touchStartPosition = {
+                            x: event.touches[0].clientX,
+                            y: event.touches[0].clientY
+                        };
+                    }
+                    
                     // 保存鼠标位置
                     this.mousePosition = {
                         x: event.clientX || (event.touches && event.touches[0].clientX),
@@ -2326,79 +2338,28 @@
                         this.showPopover();
                     }, 1000);
                 },
-                // 取消长按事件
-                cancelLongPress() {
-                    clearTimeout(this.longPressTimer);
-                    this.isLongPressTriggered = false;
-                },
-                // 处理长按事件
-                handleLongPress() {
-                    if (this.isLongPressTriggered) {
-                        this.contextMenuVisible = true;
-                        this.globalClickListener = (event) => {
-                            if (!this.$refs.contextMenu.contains(event.target)) {
-                                this.contextMenuVisible = false;
-                                document.removeEventListener('mousedown', this.globalClickListener);
-                            }
-                        };
-                        document.addEventListener('mousedown', this.globalClickListener);
+                // 处理触摸移动事件
+                handleTouchMove(event) {
+                    // 如果没有开始触摸或者没有移动，则直接返回
+                    if (!this.touchStartPosition || !event.touches || !event.touches[0]) {
+                        return;
+                    }
+                    
+                    // 计算触摸点的移动距离
+                    const currentPosition = {
+                        x: event.touches[0].clientX,
+                        y: event.touches[0].clientY
+                    };
+                    
+                    const deltaX = Math.abs(currentPosition.x - this.touchStartPosition.x);
+                    const deltaY = Math.abs(currentPosition.y - this.touchStartPosition.y);
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    
+                    // 如果移动距离超过了阈值，取消长按检测
+                    if (distance > this.touchMoveThreshold) {
+                        this.cancelLongPress();
                     }
                 },
-                // 彻查学生作业历史
-                checkStudentHistory() {
-                    this.contextMenuVisible = false;
-                    // 移除全局点击监听器
-                    if (this.globalClickListener) {
-                        document.removeEventListener('mousedown', this.globalClickListener);
-                    }
-                    if (this.selectedStudent) {
-                        this.handleSelectStudent(this.selectedStudent);
-                    }
-                },
-                
-                // 编辑学生历史欠交记录的作业内容
-                editHomeworkContent(row) {
-                    // 保存当前编辑的行
-                    this.editingRow = row;
-                    
-                    // 将当前行的作业内容复制到临时变量
-                    this.tempHomeworkContent = row.content || '';
-                    // 显示作业内容输入弹窗
-                    this.homeworkContentDialogVisible = true;
-                },
-                
-                // 编辑历史欠交学生的作业内容
-                editUnfinishedStudentHomeworkContent(row) {
-                    // 保存当前编辑的行
-                    this.editingRow = row;
-                    
-                    // 将当前行的作业内容复制到临时变量
-                    this.tempHomeworkContent = row.content || '';
-                    // 显示作业内容输入弹窗
-                    this.homeworkContentDialogVisible = true;
-                },
-                
-                // 显示全局Popover
-                showPopover() {
-                    // 显示全局Popover
-                    this.contextMenuVisible = true;
-                    
-                    // 设置popover位置为鼠标位置
-                    this.$nextTick(() => {
-                        const popover = this.$refs.globalPopover;
-                        if (popover && popover.$el) {
-                            const popper = popover.$el;
-                            popper.style.position = 'fixed';
-                            popper.style.left = this.mousePosition.x + 'px';
-                            popper.style.top = this.mousePosition.y + 'px';
-                            popper.style.transform = 'translate(0, 0)';
-                        }
-                    });
-                    
-                    // 添加全局点击监听器，用于隐藏popover
-                    this.addGlobalClickListener();
-                },
-                
                 // 取消长按检测
                 cancelLongPress() {
                     console.log('取消长按检测');
@@ -2406,6 +2367,7 @@
                         clearTimeout(this.longPressTimer);
                         this.longPressTimer = null;
                     }
+                    this.isLongPressTriggered = false;
                 },
                 // 记录按下结束时间并判断是否为长按
                 recordPressEnd(event) {
@@ -2543,4 +2505,5 @@
         });
     </script>
 </body>
+</html>
 </html>
