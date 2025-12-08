@@ -1,0 +1,771 @@
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+    min-height: 100vh;
+    /* 禁用文字选中 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* 禁用移动端的文本选择和高亮 */
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.3s ease;
+}
+
+/* 语文主题样式 */
+body.chinese-theme {
+    background: linear-gradient(135deg, #fff9e6 0%, #ffe4b5 100%);
+}
+
+/* 数学主题样式 */
+body.math-theme {
+    background: linear-gradient(135deg, #e6f3ff 0%, #cce6ff 100%);
+}
+
+/* 英语主题样式 */
+body.english-theme {
+    background: linear-gradient(135deg, #ffe6f0 0%, #ffccdd 100%);
+}
+
+/* 作业类型下拉框文字居中 */
+.center-select .el-input__inner {
+    text-align: center;
+}
+
+.header {
+    background: linear-gradient(90deg, #409EFF, #64b5f6);
+    color: white;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* 语文主题头部 */
+body.chinese-theme .header {
+    background: linear-gradient(90deg, #d2691e, #ff8c00);
+}
+
+/* 数学主题头部 */
+body.math-theme .header {
+    background: linear-gradient(90deg, #1e90ff, #4169e1);
+}
+
+/* 英语主题头部 */
+body.english-theme .header {
+    background: linear-gradient(90deg, #ff69b4, #ff1493);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 28px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.poem {
+    text-align: center;
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: bold;
+}
+
+.current-time {
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.controls {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* 语文主题控制区域 */
+body.chinese-theme .controls {
+    background-color: #fff8dc;
+}
+
+/* 数学主题控制区域 */
+body.math-theme .controls {
+    background-color: #f0f8ff;
+}
+
+/* 英语主题控制区域 */
+body.english-theme .controls {
+    background-color: #fff0f5;
+}
+
+.control-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.control-group label {
+    font-weight: bold;
+    color: #333;
+}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+}
+
+.stats {
+    width: 130px;
+    background: linear-gradient(135deg, #ffffff, #f0f4f8);
+    padding: 20px 15px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* 语文主题统计区域 */
+body.chinese-theme .stats {
+    background: linear-gradient(135deg, #fffacd, #f5deB3);
+}
+
+/* 数学主题统计区域 */
+body.math-theme .stats {
+    background: linear-gradient(135deg, #e0ffff, #b0e0e6);
+}
+
+/* 英语主题统计区域 */
+body.english-theme .stats {
+    background: linear-gradient(135deg, #ffe4e1, #ffb6c1);
+}
+
+.stat-item {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 10px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+/* 语文主题统计项 */
+body.chinese-theme .stat-item {
+    background: #fffaf0;
+}
+
+/* 数学主题统计项 */
+body.math-theme .stat-item {
+    background: #f8f8ff;
+}
+
+/* 英语主题统计项 */
+body.english-theme .stat-item {
+    background: #fff5f5;
+}
+
+.stat-item:last-child {
+    margin-bottom: 0;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.finished {
+    color: #67C23A;
+}
+
+.unfinished {
+    color: #F56C6C;
+}
+
+.students-section {
+    flex: 1;
+}
+
+.students-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.student-btn {
+    height: 70px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    text-align: center;
+    margin: 0;
+    border-radius: 15px;
+    border: 2px solid #e0e0e0;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.student-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+}
+
+.el-button.unfinished {
+    background: linear-gradient(135deg, #ff7b7b, #ff5252);
+    border: 2px solid #ff6b6b;
+    color: white;
+    width: 100%;
+    height: 70px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px;
+    text-align: center;
+    margin: 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(255, 82, 82, 0.3);
+    transition: all 0.3s ease;
+}
+
+.el-button.unfinished:hover {
+    background: linear-gradient(135deg, #ff6b6b, #ff4242);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(255, 82, 82, 0.4);
+}
+
+.el-button.finished {
+    background: linear-gradient(135deg, #67c23a, #4eab29);
+    border: 2px solid #67c23a;
+    color: white;
+    width: 100%;
+    height: 70px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px;
+    text-align: center;
+    margin: 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(103, 194, 58, 0.3);
+    transition: all 0.3s ease;
+}
+
+.el-button.finished:hover {
+    background: linear-gradient(135deg, #7cd94d, #5cb831);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(103, 194, 58, 0.4);
+}
+
+.subject-toggle-btn {
+    width: 100%;
+    height: 70px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px;
+    text-align: center;
+    margin: 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.chinese-subject {
+    background: linear-gradient(135deg, #FFA500, #FF8C00); /* 橙色 */
+    border: 2px solid #FFA500;
+}
+
+.math-subject {
+    background: linear-gradient(135deg, #409EFF, #64b5f6); /* 蓝色 */
+    border: 2px solid #409EFF;
+}
+
+.english-subject {
+    background: linear-gradient(135deg, #F56C6C, #ff4242); /* 红色 */
+    border: 2px solid #F56C6C;
+}
+
+.subject-toggle-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* 欠交数量按钮样式 */
+.unfinished-count-btn {
+    background: white; /* 白底 */
+    border: 2px solid #909399; /* 灰色边框 */
+    color: black; /* 黑字 */
+    width: 100%;
+    height: 70px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px;
+    text-align: center;
+    margin: 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(144, 147, 153, 0.3);
+    transition: all 0.3s ease;
+}
+
+.unfinished-count-btn:hover {
+    background: #f5f5f5; /* 悬停时 slightly gray background */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(144, 147, 153, 0.4);
+}
+
+.unfinished-count-btn.active {
+    background: linear-gradient(135deg, #E6A23C, #d6821c); /* 琥珀色 */
+    border: 2px solid #E6A23C;
+    color: white; /* 激活时白字 */
+    box-shadow: 0 4px 8px rgba(230, 162, 60, 0.3);
+}
+
+.unfinished-count-btn.active:hover {
+    background: linear-gradient(135deg, #f6b24c, #e6922c);
+    box-shadow: 0 6px 12px rgba(230, 162, 60, 0.4);
+}
+
+/* 覆盖Element UI默认按钮样式，确保按钮颜色统一 */
+.el-button.unfinished-count-btn {
+    border: 1px solid #909399 !important;
+    background: white !important;
+    color: black !important;
+}
+
+.el-button.unfinished-count-btn:hover {
+    background: #f5f5f5 !important;
+    border: 2px solid #909399 !important;
+}
+
+.el-button.unfinished-count-btn.active {
+    background: linear-gradient(135deg, #E6A23C, #d6821c) !important;
+    border: 2px solid #E6A23C !important;
+    color: white !important;
+}
+
+.el-button.unfinished-count-btn.active:hover {
+    background: linear-gradient(135deg, #f6b24c, #e6922c) !important;
+    border: 2px solid #E6A23C !important;
+}
+
+.unfinished-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #FFA500;
+    color: white;
+    border-radius: 50%;
+    min-width: 28px;
+    height: 28px;
+    font-size: 21px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding: 0 4px;
+    z-index: 1;
+}
+
+.spacer {
+    width: 130px;
+}
+
+/* 弹窗样式优化 */
+.el-dialog {
+    border-radius: 15px !important;
+    overflow: hidden;
+}
+
+.el-dialog__header {
+    background: linear-gradient(90deg, #409EFF, #64b5f6);
+    color: white;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+/* 弹窗关闭按钮样式优化 */
+.el-dialog__headerbtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    font-size: 24px;
+    color: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.el-dialog__headerbtn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.el-dialog__headerbtn .el-dialog__close {
+    color: white;
+    font-weight: bold;
+}
+
+/* 语文主题弹窗头部 */
+body.chinese-theme .el-dialog__header {
+    background: linear-gradient(90deg, #d2691e, #ff8c00);
+}
+
+/* 数学主题弹窗头部 */
+body.math-theme .el-dialog__header {
+    background: linear-gradient(90deg, #1e90ff, #4169e1);
+}
+
+/* 英语主题弹窗头部 */
+body.english-theme .el-dialog__header {
+    background: linear-gradient(90deg, #ff69b4, #ff1493);
+}
+
+.el-dialog__title {
+    color: white;
+    font-weight: bold;
+}
+
+.el-dialog__body {
+    padding: 20px;
+}
+
+.el-dialog__footer {
+    padding: 15px 20px;
+    background-color: #f5f7fa;
+    transition: all 0.3s ease;
+}
+
+/* 语文主题弹窗底部 */
+body.chinese-theme .el-dialog__footer {
+    background-color: #fff8dc;
+}
+
+/* 数学主题弹窗底部 */
+body.math-theme .el-dialog__footer {
+    background-color: #f0f8ff;
+}
+
+/* 英语主题弹窗底部 */
+body.english-theme .el-dialog__footer {
+    background-color: #fff0f5;
+}
+
+/* 按钮样式优化 */
+.el-button {
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.el-button--primary {
+    background: linear-gradient(90deg, #409EFF, #64b5f6);
+    border: none;
+}
+
+/* 语文主题主要按钮 */
+body.chinese-theme .el-button--primary {
+    background: linear-gradient(90deg, #d2691e, #ff8c00);
+}
+
+/* 数学主题主要按钮 */
+body.math-theme .el-button--primary {
+    background: linear-gradient(90deg, #1e90ff, #4169e1);
+}
+
+/* 英语主题主要按钮 */
+body.english-theme .el-button--primary {
+    background: linear-gradient(90deg, #ff69b4, #ff1493);
+}
+
+.el-button--success {
+    background: linear-gradient(90deg, #67C23A, #95d475);
+    border: none;
+}
+
+.el-button--warning {
+    background: linear-gradient(90deg, #E6A23C, #f3d19e);
+    border: none;
+}
+
+.el-button--danger {
+    background: linear-gradient(90deg, #F56C6C, #ff8e8e);
+    border: none;
+}
+
+/* 修复标记完成按钮悬浮时闪烁白色的问题 */
+.el-button--danger:hover {
+    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
+    border: none !important;
+    color: white !important;
+}
+
+/* 学生历史欠交记录弹窗中的标记完成按钮特殊样式 */
+.student-history-dialog .el-button--danger:hover {
+    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
+    border: none !important;
+    color: white !important;
+}
+
+/* 历史欠交学生弹窗中的标记完成按钮特殊样式 */
+.unfinished-students-dialog .el-button--danger:hover {
+    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
+    border: none !important;
+    color: white !important;
+}
+
+/* 表格样式优化 */
+.el-table {
+    border-radius: 10px;
+    overflow: hidden;
+    /* 允许在表格中选择文字 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.el-table th {
+    background-color: #ecf5ff;
+}
+
+/* 语文主题表格头部 */
+body.chinese-theme .el-table th {
+    background-color: #fffacd;
+}
+
+/* 数学主题表格头部 */
+body.math-theme .el-table th {
+    background-color: #e0ffff;
+}
+
+/* 英语主题表格头部 */
+body.english-theme .el-table th {
+    background-color: #ffe4e1;
+}
+
+/* 表格中的按钮样式优化 */
+.el-table .el-button--danger {
+    background: linear-gradient(90deg, #F56C6C, #ff8e8e) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.el-table .el-button--danger:hover {
+    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
+    border: none !important;
+    color: white !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.el-table .el-button--success {
+    background: linear-gradient(90deg, #67C23A, #95d475) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.el-table .el-button--success:hover {
+    background: linear-gradient(90deg, #5cb831, #7cd94d) !important;
+    border: none !important;
+    color: white !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+/* 表格行背景色样式 */
+.group-row-light {
+    background-color: #f0f9eb !important;
+}
+
+.group-row-dark {
+    background-color: #e0e0e0 !important;
+}
+
+/* 禁用表格行hover效果 */
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+    background-color: transparent !important;
+}
+
+/* 弹窗中表格的特殊样式 */
+.student-history-dialog .el-table .el-button--danger,
+.unfinished-students-dialog .el-table .el-button--danger {
+    background: linear-gradient(90deg, #F56C6C, #ff8e8e) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.student-history-dialog .el-table .el-button--danger:hover,
+.unfinished-students-dialog .el-table .el-button--danger:hover {
+    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
+    border: none !important;
+    color: white !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+/* 输入框样式优化 */
+.el-input__inner {
+    border-radius: 10px;
+    /* 允许在输入框中选择文字 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.el-select .el-input__inner {
+    border-radius: 10px;
+    /* 允许在选择框中选择文字 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.el-date-editor.el-input {
+    border-radius: 10px;
+    /* 允许在日期编辑器中选择文字 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* 允许在弹窗中的输入框选择文字 */
+.el-dialog .el-input__inner {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.el-dialog .el-textarea__inner {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* 选择器样式优化 */
+.el-select-dropdown {
+    border-radius: 10px;
+    /* 允许在下拉选项中选择文字 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.el-date-picker {
+    border-radius: 15px;
+}
+
+/* 加载指示器样式 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    font-size: 24px;
+    color: #409EFF;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #409EFF;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 右键菜单样式 */
+.context-menu {
+    position: fixed;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    min-width: 120px;
+    padding: 4px 0;
+    border: 1px solid #ebeef5;
+}
+
+.context-menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.context-menu-item:hover {
+    background-color: #f5f7fa;
+}
+
+/* popover 菜单样式 */
+.popover-menu {
+    position: absolute;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    min-width: 120px;
+    padding: 4px 0;
+    border: 1px solid #ebeef5;
+    /* 允许在popover菜单中选择文字 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.popover-menu-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.popover-menu-item:hover {
+    background-color: #f5f7fa;
+}
+
+.el-autocomplete-suggestion {
+    border-radius: 10px;
+    /* 允许在自动完成建议中选择文字 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
