@@ -51,7 +51,12 @@ new Vue({
             },
             // 编辑作业内容相关
             editingRow: null, // 当前正在编辑的行
-            editingRowIndex: -1 // 当前正在编辑的行索引
+            editingRowIndex: -1, // 当前正在编辑的行索引
+            // 导入学生名单相关
+            importStudentsDialogVisible: false,
+            importStudentsText: '',
+            unmatchedStudentsDialogVisible: false,
+            unmatchedStudentsText: ''
         };
     },
     computed: {
@@ -1310,6 +1315,182 @@ new Vue({
                 // 使用mousedown事件而不是click事件
                 document.addEventListener('mousedown', hidePopover);
             });
+        },
+        
+        // 显示导入学生名单对话框
+        showImportStudentsDialog() {
+            this.importStudentsText = '';
+            this.importStudentsDialogVisible = true;
+        },
+        
+        // 处理导入的学生名单
+        processImportStudents() {
+            if (!this.importStudentsText.trim()) {
+                this.$message({
+                    type: 'warning',
+                    message: '请输入学生名单'
+                });
+                return;
+            }
+            
+            // 按行分割文本
+            const lines = this.importStudentsText.split('\n');
+            const unmatchedLines = []; // 无法匹配的行
+            const matchedStudents = []; // 成功匹配的学生
+            
+            // 遍历每一行
+            for (const line of lines) {
+                if (!line.trim()) continue; // 跳过空行
+                
+                // 提取可能的学生姓名（最后两个汉字）
+                const names = this.extractStudentNamesFromLine(line);
+                
+                if (names.length > 0) {
+                    // 尝试匹配每个名字
+                    let lineMatched = false;
+                    const matchedStudentsInLine = []; // 用于存储当前行匹配到的学生
+                    
+                    for (const name of names) {
+                        const student = this.students.find(s => s.name.slice(-2) === name);
+                        if (student) {
+                            // 检查该学生是否已在当前行中被匹配过
+                            if (!matchedStudentsInLine.includes(student.id)) {
+                                matchedStudents.push({
+                                    student: student,
+                                    line: line
+                                });
+                                matchedStudentsInLine.push(student.id);
+                                lineMatched = true;
+                            }
+                        }
+                    }
+                    
+                    // 只有当一行中没有任何名字被匹配时，才将其添加到未匹配列表
+                    if (!lineMatched) {
+                        unmatchedLines.push(line);
+                    }
+                } else {
+                    unmatchedLines.push(line);
+                }
+            }
+            
+            // 处理匹配到的学生
+            if (matchedStudents.length > 0) {
+                this.markStudentsAsFinished(matchedStudents);
+            }
+            
+            // 显示无法匹配的行
+            if (unmatchedLines.length > 0) {
+                this.unmatchedStudentsText = unmatchedLines.join('\n');
+                this.unmatchedStudentsDialogVisible = true;
+            }
+            
+            // 关闭导入对话框
+            this.importStudentsDialogVisible = false;
+            
+            // 如果有匹配到的学生，给出提示
+            if (matchedStudents.length > 0) {
+                this.$message({
+                    type: 'success',
+                    message: `成功匹配并标记${matchedStudents.length}名学生为已完成`
+                });
+            }
+        },
+        
+        // 从文本行中提取可能的学生姓名（最后两个汉字）
+        extractStudentNamesFromLine(text) {
+            // 移除常见的干扰词和字符
+            let cleanedText = text.replace(/[0-9\s\.,;:!?'"\\/\(\)\[\]\{\}\<\>\-\*\+\=\~\`\@\#\$\%\^\&\_\|]+/g, '');
+            
+            // 移除特定的中文干扰词
+            const noiseWords = ['已完成', '已阅读', '已订正', '订正', '完成', '阅读'];
+            noiseWords.forEach(word => {
+                cleanedText = cleanedText.replace(new RegExp(word, 'g'), '');
+            });
+            
+            const names = [];
+            
+            // 遍历系统中的所有学生，获取他们的姓名后两位作为匹配目标
+            const studentNameEndings = this.students.map(student => student.name.slice(-2));
+            
+            // 在清理后的文本中查找所有匹配的学生姓名后两位
+            studentNameEndings.forEach(ending => {
+                // 检查该姓名后缀在文本中出现了多少次
+                let startIndex = 0;
+                while (startIndex < cleanedText.length) {
+                    const index = cleanedText.indexOf(ending, startIndex);
+                    if (index === -1) break;
+                    names.push(ending);
+                    startIndex = index + 1; // 从下一个位置继续查找，支持重复出现的名字
+                }
+            });
+            
+            return [...new Set(names)]; // 去重
+        },
+        
+        // 标记学生为已完成状态
+        markStudentsAsFinished(students) {
+            // 去除重复的学生（同一行可能匹配到同一个学生多次）
+            const uniqueStudents = [];
+            const seenStudentIds = new Set();
+            
+            students.forEach(studentObj => {
+                if (!seenStudentIds.has(studentObj.student.id)) {
+                    seenStudentIds.add(studentObj.student.id);
+                    uniqueStudents.push(studentObj);
+                }
+            });
+            
+            const updatePromises = uniqueStudents.map(studentObj => {
+                const student = studentObj.student;
+                let record = this.correctionRecords.find(r => r.studentId === student.id);
+                
+                if (!record) {
+                    // 创建新记录
+                    record = {
+                        date: this.currentDate,
+                        studentId: student.id,
+                        homeworkTypeId: this.selectedType,
+                        subjectId: this.getSubjectIdByHomeworkType(this.selectedType),
+                        corrected: true
+                    };
+                } else {
+                    // 更新现有记录
+                    record.corrected = true;
+                }
+                
+                return axios.post('/api/correctionRecords', record);
+            });
+            
+            // 执行所有更新请求
+            Promise.all(updatePromises)
+                .then(responses => {
+                    // 更新本地记录
+                    responses.forEach(response => {
+                        const updatedRecord = response.data;
+                        const index = this.correctionRecords.findIndex(r => r.studentId === updatedRecord.studentId);
+                        if (index > -1) {
+                            this.$set(this.correctionRecords, index, updatedRecord);
+                        } else {
+                            this.correctionRecords.push(updatedRecord);
+                        }
+                    });
+                    
+                    // 更新统计数据
+                    this.updateStats();
+                    
+                    // 如果开启了欠交数量显示，则更新欠交数量
+                    if (this.showUnfinishedCount) {
+                        this.loadUnfinishedCounts();
+                    }
+                })
+                .catch(error => {
+                    console.error('标记学生为已完成状态时出错:', error);
+                    this.$message({
+                        type: 'error',
+                        message: '更新学生状态时出错'
+                    });
+                });
         },
         
         // 彻查学生作业历史

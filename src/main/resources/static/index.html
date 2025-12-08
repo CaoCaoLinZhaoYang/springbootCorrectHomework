@@ -75,6 +75,7 @@
                     </div>
 
                     <el-button @click="showUnfinishedStudents" style="margin-right: 10px; align-self: flex-start;">本作业欠交名单</el-button>
+                    <el-button @click="showImportStudentsDialog" style="margin-right: 10px; align-self: flex-start;">导入学生名单</el-button>
 
                     <span style="margin-right: 5px; font-weight: bold; display: flex; align-items: center; padding-top: 8px;">彻查学生作业：</span>
                     <el-autocomplete
@@ -293,6 +294,35 @@
                 <el-button @click="closeHomeworkContentDialog">取 消</el-button>
                 <el-button type="primary" @click="saveHomeworkContentFromDialog">确 定</el-button>
             </span>
+    </el-dialog>
+
+    <!-- 导入学生名单对话框 -->
+    <el-dialog title="导入学生名单" :visible.sync="importStudentsDialogVisible" width="400px">
+        <el-input
+                type="textarea"
+                :rows="10"
+                placeholder="请输入学生名单，每行一个或多个学生，支持带干扰字符"
+                v-model="importStudentsText"
+                style="width: 100%;">
+        </el-input>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="importStudentsDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="processImportStudents">确 定</el-button>
+        </span>
+    </el-dialog>
+
+    <!-- 无法匹配的学生名单对话框 -->
+    <el-dialog title="以下记录未能匹配" :visible.sync="unmatchedStudentsDialogVisible" width="400px">
+        <el-input
+                type="textarea"
+                :rows="10"
+                v-model="unmatchedStudentsText"
+                readonly
+                style="width: 100%;">
+        </el-input>
+        <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="unmatchedStudentsDialogVisible = false">确 定</el-button>
+        </span>
     </el-dialog>
 </div>
 
