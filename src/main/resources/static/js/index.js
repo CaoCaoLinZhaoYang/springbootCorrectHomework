@@ -1399,26 +1399,17 @@ new Vue({
         
         // 从文本行中提取可能的学生姓名（最后两个汉字）
         extractStudentNamesFromLine(text) {
-            // 移除常见的干扰词和字符
-            let cleanedText = text.replace(/[0-9\s\.,;:!?'"\\/\(\)\[\]\{\}\<\>\-\*\+\=\~\`\@\#\$\%\^\&\_\|]+/g, '');
-            
-            // 移除特定的中文干扰词
-            const noiseWords = ['已完成', '已阅读', '已订正', '订正', '完成', '阅读'];
-            noiseWords.forEach(word => {
-                cleanedText = cleanedText.replace(new RegExp(word, 'g'), '');
-            });
-            
             const names = [];
             
             // 遍历系统中的所有学生，获取他们的姓名后两位作为匹配目标
             const studentNameEndings = this.students.map(student => student.name.slice(-2));
             
-            // 在清理后的文本中查找所有匹配的学生姓名后两位
+            // 在原文本中查找所有匹配的学生姓名后两位
             studentNameEndings.forEach(ending => {
                 // 检查该姓名后缀在文本中出现了多少次
                 let startIndex = 0;
-                while (startIndex < cleanedText.length) {
-                    const index = cleanedText.indexOf(ending, startIndex);
+                while (startIndex < text.length) {
+                    const index = text.indexOf(ending, startIndex);
                     if (index === -1) break;
                     names.push(ending);
                     startIndex = index + 1; // 从下一个位置继续查找，支持重复出现的名字

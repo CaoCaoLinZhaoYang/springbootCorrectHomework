@@ -28,8 +28,14 @@ public class HomeworkAssignmentService extends ServiceImpl<HomeworkAssignmentRep
             HomeworkAssignment assignment = new HomeworkAssignment();
             assignment.setDate(date);
             assignment.setHomeworkTypeId(homeworkTypeId);
-            homeworkAssignmentRepository.insert(assignment);
-            return assignment;
+            
+            try {
+                homeworkAssignmentRepository.insert(assignment);
+                return assignment;
+            } catch (Exception e) {
+                // 如果插入失败（可能是由于并发导致的重复键错误），则查询已存在的记录
+                return homeworkAssignmentRepository.findByDateAndType(date, homeworkTypeId);
+            }
         }
         return homeworkAssignmentRepository.findByDateAndType(date, homeworkTypeId);
     }
