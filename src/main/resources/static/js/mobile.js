@@ -105,7 +105,7 @@ new Vue({
             sessionStorage.setItem('selectedType', newVal);
         },
         subjectIndex(newVal) {
-            sessionStorage.setItem('subjectIndex', newVal);
+            localStorage.setItem('subjectIndex', newVal);  // 改为使用 localStorage
             // 切换主题
             this.applySubjectTheme();
         }
@@ -120,7 +120,7 @@ new Vue({
         // 从sessionStorage恢复保存的日期、作业类型和科目
         const savedDate = sessionStorage.getItem('selectedDate');
         const savedType = sessionStorage.getItem('selectedType');
-        const savedSubjectIndex = sessionStorage.getItem('subjectIndex');
+        const savedSubjectIndex = localStorage.getItem('subjectIndex');  // 改为从 localStorage 读取
         
         if (savedDate) {
             this.currentDate = savedDate;
