@@ -157,7 +157,7 @@
     </div>
 
     <!-- 学生历史欠交记录对话框 -->
-    <el-dialog :title="'彻查作业 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" width="60%" class="student-history-dialog">
+    <el-dialog :title="'彻查作业 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" width="70%" class="student-history-dialog">
         <div style="margin-bottom: 10px;">
             <el-button
                     @click="sortStudentHistory('date', 'asc')"
@@ -187,20 +187,16 @@
                 </template>
             </el-table-column>
             <el-table-column prop="typeName" label="作业类型" width="120"></el-table-column>
-            <el-table-column label="操作" width="120">
-                <template slot-scope="scope">
-                    <el-button
-                            size="mini"
-                            :type="scope.row.corrected ? 'success' : 'danger'"
-                            @click="markAsFinished(scope.row)">
-                        {{ scope.row.corrected ? '已完成' : '标记完成' }}
-                    </el-button>
-                </template>
-            </el-table-column>
             <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip></el-table-column>
-            <el-table-column label="功能" width="200">
+            <el-table-column label="功能" width="250">
                 <template slot-scope="scope">
                     <div style="display: flex; gap: 5px;">
+                        <el-button
+                                size="mini"
+                                :type="scope.row.corrected ? 'success' : 'danger'"
+                                @click="markAsFinished(scope.row)">
+                            {{ scope.row.corrected ? '已完成' : '标记完成' }}
+                        </el-button>
                         <el-button
                                 size="mini"
                                 type="primary"
@@ -220,7 +216,7 @@
     </el-dialog>
 
     <!-- 历史欠交学生对话框 -->
-    <el-dialog :title="currentTypeName + ' - 历史欠交学生'" :visible.sync="unfinishedStudentsDialogVisible" width="70%" class="unfinished-students-dialog">
+    <el-dialog :title="currentTypeName + ' - 历史欠交学生'" :visible.sync="unfinishedStudentsDialogVisible" width="80%" class="unfinished-students-dialog">
         <div style="margin-bottom: 10px;">
             <el-button
                     @click="sortUnfinishedStudents('date', 'asc')"
@@ -248,20 +244,16 @@
             <el-table-column prop="weekDay" label="星期" width="80"></el-table-column>
             <el-table-column prop="studentNumber" label="学号" width="80"></el-table-column>
             <el-table-column prop="name" label="姓名" width="120"></el-table-column>
-            <el-table-column label="操作" width="120">
-                <template slot-scope="scope">
-                    <el-button
-                            size="mini"
-                            type="danger"
-                            @click="markUnfinishedStudentAsFinished(scope.row)">
-                        标记完成
-                    </el-button>
-                </template>
-            </el-table-column>
             <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip></el-table-column>
-            <el-table-column label="功能" width="200">
+            <el-table-column label="功能" width="250">
                 <template slot-scope="scope">
                     <div style="display: flex; gap: 5px;">
+                        <el-button
+                                size="mini"
+                                type="danger"
+                                @click="markUnfinishedStudentAsFinished(scope.row)">
+                            标记完成
+                        </el-button>
                         <el-button
                                 size="mini"
                                 type="primary"
