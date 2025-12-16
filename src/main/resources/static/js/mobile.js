@@ -787,19 +787,10 @@ new Vue({
                         message: '标记成功!'
                     });
 
-                    // 从当前列表中移除该记录
-                    const index = this.studentHistoryRecords.findIndex(item =>
-                        item.id === row.id
-                    );
-                    if (index > -1) {
-                        this.studentHistoryRecords.splice(index, 1);
-                    }
+                    // 标记该行已处理，但不从列表中移除
+                    this.$set(row, 'markedAsFinished', true);
 
-                    // 如果所有记录都已标记完成，关闭弹窗
-                    if (this.studentHistoryRecords.length === 0) {
-                        this.studentHistoryDialogVisible = false;
-                    }
-
+                    // 不再移除记录，也不关闭弹窗
                     // 刷新主页面数据
                     this.loadData();
                     // 如果开启了欠交数量显示，则更新欠交数量
@@ -861,15 +852,10 @@ new Vue({
                     return Promise.reject("未找到对应记录");
                 })
                 .then(() => {
-                    // 从当前列表中移除该记录
-                    const index = this.unfinishedStudents.findIndex(item =>
-                        item.date === row.date &&
-                        item.studentNumber === row.studentNumber
-                    );
-                    if (index > -1) {
-                        this.unfinishedStudents.splice(index, 1);
-                    }
+                    // 标记该行已处理，但不从列表中移除
+                    this.$set(row, 'markedAsFinished', true);
 
+                    // 不再移除记录
                     // 如果标记的是当前日期的记录，也需要更新主页面的数据
                     if (row.date === this.currentDate) {
                         this.loadData();

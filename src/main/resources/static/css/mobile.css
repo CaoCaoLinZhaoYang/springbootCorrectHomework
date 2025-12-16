@@ -604,118 +604,173 @@ body.english-theme .el-dialog__footer {
     font-weight: bold;
 }
 
-.el-button--primary {
+.el-button--danger:not(:disabled) {
+    background: linear-gradient(90deg, #F56C6C, #ff8e8e);
+    border: none;
+}
+
+.el-button--primary:not(:disabled) {
     background: linear-gradient(90deg, #409EFF, #64b5f6);
     border: none;
 }
 
 /* 语文主题主要按钮 */
-body.chinese-theme .el-button--primary {
+body.chinese-theme .el-button--primary:not(:disabled) {
     background: linear-gradient(90deg, #d2691e, #ff8c00);
 }
 
 /* 数学主题主要按钮 */
-body.math-theme .el-button--primary {
+body.math-theme .el-button--primary:not(:disabled) {
     background: linear-gradient(90deg, #1e90ff, #4169e1);
 }
 
 /* 英语主题主要按钮 */
-body.english-theme .el-button--primary {
+body.english-theme .el-button--primary:not(:disabled) {
     background: linear-gradient(90deg, #ff69b4, #ff1493);
 }
 
-.el-button--success {
+.el-button--success:not(:disabled) {
     background: linear-gradient(90deg, #67C23A, #95d475);
     border: none;
 }
 
-.el-button--warning {
+.el-button--warning:not(:disabled) {
     background: linear-gradient(90deg, #E6A23C, #f3d19e);
     border: none;
 }
 
-.el-button--danger {
+.el-button--danger:not(:disabled) {
     background: linear-gradient(90deg, #F56C6C, #ff8e8e);
     border: none;
 }
 
-/* 修复标记完成按钮悬浮时闪烁白色的问题 */
-.el-button--danger:hover {
-    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
-    border: none !important;
-    color: white !important;
-}
+
 
 /* 学生历史欠交记录弹窗中的标记完成按钮特殊样式 */
-.student-history-dialog .el-button--danger:hover {
+.student-history-dialog .el-button--danger:not(:disabled):hover {
     background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
     border: none !important;
     color: white !important;
 }
 
 /* 历史欠交学生弹窗中的标记完成按钮特殊样式 */
-.unfinished-students-dialog .el-button--danger:hover {
+.unfinished-students-dialog .el-button--danger:not(:disabled):hover {
     background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
     border: none !important;
     color: white !important;
 }
 
-/* 表格样式优化 */
-.el-table {
-    border-radius: 10px;
-    overflow: hidden;
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
-}
-
-.el-table th {
-    background-color: #ecf5ff;
-}
-
-/* 语文主题表格头部 */
-body.chinese-theme .el-table th {
-    background-color: #fffacd;
-}
-
-/* 数学主题表格头部 */
-body.math-theme .el-table th {
-    background-color: #e0ffff;
-}
-
-/* 英语主题表格头部 */
-body.english-theme .el-table th {
-    background-color: #ffe4e1;
-}
-
 /* 表格中的按钮样式优化 */
-.el-table .el-button--danger {
+.el-table .el-button--danger:not(:disabled) {
     background: linear-gradient(90deg, #F56C6C, #ff8e8e) !important;
     border: none !important;
     color: white !important;
 }
 
-.el-table .el-button--danger:hover {
-    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
+.el-table .el-button--primary:not(:disabled) {
+    background: linear-gradient(90deg, #409EFF, #64b5f6) !important;
     border: none !important;
     color: white !important;
-    transform: scale(1.05);
-    transition: all 0.2s ease;
 }
 
-.el-table .el-button--success {
+body.chinese-theme .el-table .el-button--primary:not(:disabled) {
+    background: linear-gradient(90deg, #d2691e, #ff8c00) !important;
+    border: none !important;
+    color: white !important;
+}
+
+body.math-theme .el-table .el-button--primary:not(:disabled) {
+    background: linear-gradient(90deg, #1e90ff, #4169e1) !important;
+    border: none !important;
+    color: white !important;
+}
+
+body.english-theme .el-table .el-button--primary:not(:disabled) {
+    background: linear-gradient(90deg, #ff69b4, #ff1493) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.el-table .el-button--success:not(:disabled) {
     background: linear-gradient(90deg, #67C23A, #95d475) !important;
     border: none !important;
     color: white !important;
 }
 
-.el-table .el-button--success:hover {
-    background: linear-gradient(90deg, #5cb831, #7cd94d) !important;
-    border: none !important;
-    color: white !important;
-    transform: scale(1.05);
-    transition: all 0.2s ease;
+/* 已标记完成行的样式 */
+.marked-as-finished {
+    text-decoration: line-through;
+    color: #C0C4CC;
+}
+
+/* 表格中已标记完成的按钮样式 */
+.el-table .el-button:disabled {
+    background-color: #DCDFE6 !important;
+    border-color: #DCDFE6 !important;
+    cursor: not-allowed;
+}
+
+/* 禁用按钮内文字保持原色 */
+.el-table .el-button--primary:disabled {
+    color: #FFFFFF !important;
+}
+
+.el-table .el-button--success:disabled {
+    color: #FFFFFF !important;
+}
+
+.el-table .el-button--danger:disabled {
+    color: #FFFFFF !important;
+}
+
+/* 提高禁用按钮样式的优先级，防止被其他样式覆盖 */
+.el-table .el-button:disabled,
+.el-table .el-button:disabled:hover,
+.el-table .el-button:disabled:focus,
+.el-table .el-button[disabled],
+.el-table .el-button[disabled]:hover,
+.el-table .el-button[disabled]:focus {
+    background-color: #DCDFE6 !important;
+    border-color: #DCDFE6 !important;
+    color: #C0C4CC !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 特定类型按钮禁用状态下的文字颜色 */
+.el-table .el-button--primary:disabled,
+.el-table .el-button--primary:disabled:hover,
+.el-table .el-button--primary:disabled:focus,
+.el-table .el-button--primary[disabled],
+.el-table .el-button--primary[disabled]:hover,
+.el-table .el-button--primary[disabled]:focus {
+    color: #FFFFFF !important;
+    background-color: #DCDFE6 !important;
+    border-color: #DCDFE6 !important;
+}
+
+.el-table .el-button--success:disabled,
+.el-table .el-button--success:disabled:hover,
+.el-table .el-button--success:disabled:focus,
+.el-table .el-button--success[disabled],
+.el-table .el-button--success[disabled]:hover,
+.el-table .el-button--success[disabled]:focus {
+    color: #FFFFFF !important;
+    background-color: #DCDFE6 !important;
+    border-color: #DCDFE6 !important;
+}
+
+.el-table .el-button--danger:disabled,
+.el-table .el-button--danger:disabled:hover,
+.el-table .el-button--danger:disabled:focus,
+.el-table .el-button--danger[disabled],
+.el-table .el-button--danger[disabled]:hover,
+.el-table .el-button--danger[disabled]:focus {
+    color: #FFFFFF !important;
+    background-color: #DCDFE6 !important;
+    border-color: #DCDFE6 !important;
 }
 
 /* 表格行背景色样式 */
@@ -733,21 +788,14 @@ body.english-theme .el-table th {
 }
 
 /* 弹窗中表格的特殊样式 */
-.student-history-dialog .el-table .el-button--danger,
-.unfinished-students-dialog .el-table .el-button--danger {
+.student-history-dialog .el-table .el-button--danger:not(:disabled),
+.unfinished-students-dialog .el-table .el-button--danger:not(:disabled) {
     background: linear-gradient(90deg, #F56C6C, #ff8e8e) !important;
     border: none !important;
     color: white !important;
 }
 
-.student-history-dialog .el-table .el-button--danger:hover,
-.unfinished-students-dialog .el-table .el-button--danger:hover {
-    background: linear-gradient(90deg, #ff6b6b, #ff7b7b) !important;
-    border: none !important;
-    color: white !important;
-    transform: scale(1.05);
-    transition: all 0.2s ease;
-}
+
 
 /* 输入框样式优化 */
 .el-input__inner {
