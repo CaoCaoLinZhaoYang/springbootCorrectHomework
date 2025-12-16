@@ -183,30 +183,41 @@
         <el-table :data="studentHistoryRecords" style="width: 100%" :row-class-name="tableRowClassName">
             <el-table-column prop="date" label="日期" width="120">
                 <template slot-scope="scope">
-                    {{ formatDate(scope.row.date) }}
+                    <el-button 
+                        size="mini" 
+                        type="danger" 
+                        @click="markAsFinished(scope.row)"
+                        :disabled="!!scope.row.markedAsFinished"
+                        style="width: 100%; font-size: 14px; padding: 7px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        {{ formatDate(scope.row.date) }}
+                    </el-button>
                 </template>
             </el-table-column>
-            <el-table-column prop="typeName" label="作业类型" width="120"></el-table-column>
-            <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip></el-table-column>
-            <el-table-column label="功能" width="250">
+            <el-table-column prop="typeName" label="作业类型" width="120">
+                <template slot-scope="scope">
+                    <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.typeName }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip>
+                <template slot-scope="scope">
+                    <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.content }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="功能" width="200">
                 <template slot-scope="scope">
                     <div style="display: flex; gap: 5px;">
                         <el-button
                                 size="mini"
-                                :type="scope.row.corrected ? 'success' : 'danger'"
-                                @click="markAsFinished(scope.row)">
-                            {{ scope.row.corrected ? '已完成' : '标记完成' }}
-                        </el-button>
-                        <el-button
-                                size="mini"
                                 type="primary"
-                                @click="editHomeworkContent(scope.row)">
+                                @click="editHomeworkContent(scope.row)"
+                                :disabled="!!scope.row.markedAsFinished">
                             修改内容
                         </el-button>
                         <el-button
                                 size="mini"
                                 type="success"
-                                @click="locateToRecord(scope.row)">
+                                @click="locateToRecord(scope.row)"
+                                :disabled="!!scope.row.markedAsFinished">
                             定位
                         </el-button>
                     </div>
@@ -240,30 +251,53 @@
             </el-button>
         </div>
         <el-table :data="unfinishedStudents" style="width: 100%" :max-height="400" :row-class-name="tableRowClassNameUnfinished">
-            <el-table-column prop="date" label="日期" width="120"></el-table-column>
-            <el-table-column prop="weekDay" label="星期" width="80"></el-table-column>
-            <el-table-column prop="studentNumber" label="学号" width="80"></el-table-column>
-            <el-table-column prop="name" label="姓名" width="120"></el-table-column>
-            <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip></el-table-column>
-            <el-table-column label="功能" width="250">
+            <el-table-column prop="date" label="日期" width="120">
+                <template slot-scope="scope">
+                    <el-button 
+                        size="mini" 
+                        type="danger" 
+                        @click="markUnfinishedStudentAsFinished(scope.row)"
+                        :disabled="!!scope.row.markedAsFinished"
+                        style="width: 100%; font-size: 14px; padding: 7px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        {{ scope.row.date }}
+                    </el-button>
+                </template>
+            </el-table-column>
+            <el-table-column prop="weekDay" label="星期" width="80">
+                <template slot-scope="scope">
+                    <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.weekDay }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="studentNumber" label="学号" width="100">
+                <template slot-scope="scope">
+                    <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.studentNumber }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="name" label="姓名" width="120">
+                <template slot-scope="scope">
+                    <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip>
+                <template slot-scope="scope">
+                    <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.content }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="功能" width="200">
                 <template slot-scope="scope">
                     <div style="display: flex; gap: 5px;">
                         <el-button
                                 size="mini"
-                                type="danger"
-                                @click="markUnfinishedStudentAsFinished(scope.row)">
-                            标记完成
-                        </el-button>
-                        <el-button
-                                size="mini"
                                 type="primary"
-                                @click="editHomeworkContent(scope.row)">
+                                @click="editHomeworkContent(scope.row)"
+                                :disabled="!!scope.row.markedAsFinished">
                             修改内容
                         </el-button>
                         <el-button
                                 size="mini"
                                 type="success"
-                                @click="locateToRecord(scope.row)">
+                                @click="locateToRecord(scope.row)"
+                                :disabled="!!scope.row.markedAsFinished">
                             定位
                         </el-button>
                     </div>
