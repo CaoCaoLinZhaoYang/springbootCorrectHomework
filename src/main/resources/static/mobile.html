@@ -208,7 +208,7 @@
         <!-- 历史欠交学生对话框 -->
         <el-dialog :title="currentTypeName + ' - 历史欠交学生'" :visible.sync="unfinishedStudentsDialogVisible" class="unfinished-students-dialog">
             <el-table :data="unfinishedStudents" style="width: 100%" :max-height="400" :row-class-name="tableRowClassNameUnfinished" @sort-change="handleUnfinishedStudentsSortChange" ref="unfinishedStudentsTable">
-                <el-table-column prop="date" label="日期" width="120" sortable="custom">
+                <el-table-column prop="date" label="日期" width="110" sortable="custom">
                     <template slot-scope="scope">
                         <el-button 
                             size="mini" 
@@ -220,9 +220,21 @@
                         </el-button>
                     </template>
                 </el-table-column>
-                <el-table-column prop="weekDay" label="星期" width="60"></el-table-column>
-                <el-table-column prop="studentNumber" label="学号" width="60" sortable="custom"></el-table-column>
-                <el-table-column prop="name" label="姓名" width="80"></el-table-column>
+                <el-table-column prop="weekDay" label="星期" width="60">
+                    <template slot-scope="scope">
+                        <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.weekDay }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="studentNumber" label="学号" width="60" sortable="custom">
+                    <template slot-scope="scope">
+                        <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.studentNumber }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="name" label="姓名" width="80">
+                    <template slot-scope="scope">
+                        <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.name }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="content" label="作业内容" min-width="150" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span :class="{ 'marked-as-finished': !!scope.row.markedAsFinished }">{{ scope.row.content }}</span>
