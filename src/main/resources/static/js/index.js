@@ -1563,6 +1563,11 @@ new Vue({
             if (this.selectedStudent) {
                 this.handleSelectStudent(this.selectedStudent);
             }
+        },
+        
+        // 导出学生欠交作业数据到剪贴板
+        exportStudentData() {
+            Utils.exportStudentData(this);
         }
     }
 });

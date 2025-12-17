@@ -159,6 +159,10 @@
         
         <!-- 学生历史欠交记录对话框 -->
         <el-dialog :title="'彻查作业 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" class="student-history-dialog">
+            <div slot="title">
+                <span>彻查作业 - {{ selectedStudentName }}</span>
+                <el-button size="mini" type="primary" @click="exportStudentData" style="margin-left: 15px;">导出数据</el-button>
+            </div>
             <el-table :data="studentHistoryRecords" style="width: 100%" :row-class-name="tableRowClassName" @sort-change="handleStudentHistorySortChange" ref="studentHistoryTable">
                 <el-table-column prop="date" label="日期" width="110" sortable="custom">
                     <template slot-scope="scope">
@@ -312,6 +316,7 @@
     <script src="js/vue.js"></script>
     <script src="js/element-ui.js"></script>
     <script src="js/axios.min.js"></script>
+    <script src="js/utils.js"></script>
     <script src="js/mobile.js"></script>
 </body>
 </html>

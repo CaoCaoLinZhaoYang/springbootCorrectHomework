@@ -1634,6 +1634,11 @@ new Vue({
                         message: '更新学生状态时出错'
                     });
                 });
+        },
+        
+        // 导出学生欠交作业数据到剪贴板
+        exportStudentData() {
+            Utils.exportStudentData(this);
         }
     }
 });
