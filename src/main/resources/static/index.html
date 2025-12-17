@@ -185,9 +185,9 @@
                 <template slot-scope="scope">
                     <el-button 
                         size="mini" 
-                        type="danger" 
+                        :type="scope.row.markedAsFinished ? 'info' : 'danger'"
                         @click="markAsFinished(scope.row)"
-                        :disabled="!!scope.row.markedAsFinished"
+                        :key="scope.row.id + '-' + scope.row.markedAsFinished"
                         style="width: 100%; font-size: 14px; padding: 7px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                         {{ formatDate(scope.row.date) }}
                     </el-button>
@@ -255,9 +255,9 @@
                 <template slot-scope="scope">
                     <el-button 
                         size="mini" 
-                        type="danger" 
+                        :type="scope.row.markedAsFinished ? 'info' : 'danger'"
                         @click="markUnfinishedStudentAsFinished(scope.row)"
-                        :disabled="!!scope.row.markedAsFinished"
+                        :key="scope.row.id + '-' + scope.row.markedAsFinished"
                         style="width: 100%; font-size: 14px; padding: 7px 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                         {{ scope.row.date }}
                     </el-button>
