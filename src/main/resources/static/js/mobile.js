@@ -779,25 +779,49 @@ new Vue({
             });
         },
         markAsFinished(row) {
-            row.corrected = true;
-            axios.post('/api/correctionRecords', row)
-                .then(() => {
-                    this.$message({
-                        type: 'success',
-                        message: '标记成功!'
+            // 检查是否已经是完成状态，如果是则取消完成状态
+            if (row.markedAsFinished) {
+                // 取消完成状态
+                row.corrected = false;
+                axios.post('/api/correctionRecords', row)
+                    .then(() => {
+                        this.$message({
+                            type: 'success',
+                            message: '已取消订正状态!'
+                        });
+
+                        // 取消标记该行已处理
+                        this.$delete(row, 'markedAsFinished');
+
+                        // 刷新主页面数据
+                        this.loadData();
+                        // 如果开启了欠交数量显示，则更新欠交数量
+                        if (this.showUnfinishedCount) {
+                            this.loadUnfinishedCounts();
+                        }
                     });
+            } else {
+                // 标记为完成状态
+                row.corrected = true;
+                axios.post('/api/correctionRecords', row)
+                    .then(() => {
+                        this.$message({
+                            type: 'success',
+                            message: '标记成功!'
+                        });
 
-                    // 标记该行已处理，但不从列表中移除
-                    this.$set(row, 'markedAsFinished', true);
+                        // 标记该行已处理，但不从列表中移除
+                        this.$set(row, 'markedAsFinished', true);
 
-                    // 不再移除记录，也不关闭弹窗
-                    // 刷新主页面数据
-                    this.loadData();
-                    // 如果开启了欠交数量显示，则更新欠交数量
-                    if (this.showUnfinishedCount) {
-                        this.loadUnfinishedCounts();
-                    }
-                });
+                        // 不再移除记录，也不关闭弹窗
+                        // 刷新主页面数据
+                        this.loadData();
+                        // 如果开启了欠交数量显示，则更新欠交数量
+                        if (this.showUnfinishedCount) {
+                            this.loadUnfinishedCounts();
+                        }
+                    });
+            }
         },
         sortStudentHistory(field, order) {
             this.studentHistorySortField = field;
@@ -835,48 +859,92 @@ new Vue({
             });
         },
         markUnfinishedStudentAsFinished(row) {
-            // 标记历史欠交学生为已完成
-            // 首先需要找到该学生的订正记录ID
-            axios.get(`/api/correctionRecords?date=${row.rawDate}&typeId=${this.selectedType}`)
-                .then(response => {
-                    // 在返回的记录中找到对应学生的记录
-                    const student = this.students.find(s => s.studentNumber === row.studentNumber);
-                    if (student) {
-                        const record = response.data.find(r => r.studentId === student.id);
-                        if (record) {
-                            // 更新记录状态为已完成
-                            record.corrected = true;
-                            return axios.post('/api/correctionRecords', record);
+            // 检查是否已经是完成状态，如果是则取消完成状态
+            if (row.markedAsFinished) {
+                // 首先需要找到该学生的订正记录ID
+                axios.get(`/api/correctionRecords?date=${row.rawDate}&typeId=${this.selectedType}`)
+                    .then(response => {
+                        // 在返回的记录中找到对应学生的记录
+                        const student = this.students.find(s => s.studentNumber === row.studentNumber);
+                        if (student) {
+                            const record = response.data.find(r => r.studentId === student.id);
+                            if (record) {
+                                // 更新记录状态为未完成
+                                record.corrected = false;
+                                return axios.post('/api/correctionRecords', record);
+                            }
                         }
-                    }
-                    return Promise.reject("未找到对应记录");
-                })
-                .then(() => {
-                    // 标记该行已处理，但不从列表中移除
-                    this.$set(row, 'markedAsFinished', true);
+                        return Promise.reject("未找到对应记录");
+                    })
+                    .then(() => {
+                        // 取消标记该行已处理
+                        this.$delete(row, 'markedAsFinished');
 
-                    // 不再移除记录
-                    // 如果标记的是当前日期的记录，也需要更新主页面的数据
-                    if (row.date === this.currentDate) {
-                        this.loadData();
-                    }
+                        // 如果标记的是当前日期的记录，也需要更新主页面的数据
+                        if (row.date === this.currentDate) {
+                            this.loadData();
+                        }
 
-                    this.$message({
-                        type: 'success',
-                        message: '标记成功!'
+                        this.$message({
+                            type: 'success',
+                            message: '已取消订正状态!'
+                        });
+                        
+                        // 如果开启了欠交数量显示，则更新欠交数量
+                        if (this.showUnfinishedCount) {
+                            this.loadUnfinishedCounts();
+                        }
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '取消订正状态失败: ' + error
+                        });
                     });
-                    
-                    // 如果开启了欠交数量显示，则更新欠交数量
-                    if (this.showUnfinishedCount) {
-                        this.loadUnfinishedCounts();
-                    }
-                })
-                .catch(error => {
-                    this.$message({
-                        type: 'error',
-                        message: '标记失败: ' + error
+            } else {
+                // 标记历史欠交学生为已完成
+                // 首先需要找到该学生的订正记录ID
+                axios.get(`/api/correctionRecords?date=${row.rawDate}&typeId=${this.selectedType}`)
+                    .then(response => {
+                        // 在返回的记录中找到对应学生的记录
+                        const student = this.students.find(s => s.studentNumber === row.studentNumber);
+                        if (student) {
+                            const record = response.data.find(r => r.studentId === student.id);
+                            if (record) {
+                                // 更新记录状态为已完成
+                                record.corrected = true;
+                                return axios.post('/api/correctionRecords', record);
+                            }
+                        }
+                        return Promise.reject("未找到对应记录");
+                    })
+                    .then(() => {
+                        // 标记该行已处理，但不从列表中移除
+                        this.$set(row, 'markedAsFinished', true);
+
+                        // 不再移除记录
+                        // 如果标记的是当前日期的记录，也需要更新主页面的数据
+                        if (row.date === this.currentDate) {
+                            this.loadData();
+                        }
+
+                        this.$message({
+                            type: 'success',
+                            message: '标记成功!'
+                        });
+                        
+                        // 如果开启了欠交数量显示，则更新欠交数量
+                        if (this.showUnfinishedCount) {
+                            this.loadUnfinishedCounts();
+                        }
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '标记失败: ' + error
+                        });
                     });
-                });
+            }
         },
         showHomeworkContentDialog() {
             // 将当前作业内容复制到临时变量

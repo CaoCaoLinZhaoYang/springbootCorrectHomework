@@ -703,40 +703,12 @@ body.english-theme .el-table .el-button--primary:not(:disabled) {
     color: #C0C4CC;
 }
 
-/* 表格中已标记完成的按钮样式 */
+/* 表格中禁用按钮样式 */
 .el-table .el-button:disabled {
     background-color: #DCDFE6 !important;
     border-color: #DCDFE6 !important;
-    cursor: not-allowed;
-}
-
-/* 禁用按钮内文字保持原色 */
-.el-table .el-button--primary:disabled {
     color: #FFFFFF !important;
-}
-
-.el-table .el-button--success:disabled {
-    color: #FFFFFF !important;
-}
-
-.el-table .el-button--danger:disabled {
-    color: #FFFFFF !important;
-}
-
-/* 提高禁用按钮样式的优先级，防止被其他样式覆盖 */
-.el-table .el-button:disabled,
-.el-table .el-button:disabled:hover,
-.el-table .el-button:disabled:focus,
-.el-table .el-button[disabled],
-.el-table .el-button[disabled]:hover,
-.el-table .el-button[disabled]:focus {
-    background-color: #DCDFE6 !important;
-    border-color: #DCDFE6 !important;
-    color: #C0C4CC !important;
     cursor: not-allowed !important;
-    opacity: 1 !important;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
 /* 特定类型按钮禁用状态下的文字颜色 */
