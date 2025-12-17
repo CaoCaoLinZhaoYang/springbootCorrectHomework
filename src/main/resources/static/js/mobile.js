@@ -44,14 +44,7 @@ new Vue({
             touchStartPosition: { x: 0, y: 0 }, // 触摸开始位置
             touchMoveThreshold: 10, // 触摸移动阈值，单位：像素
             // 日期选择器选项
-            pickerOptions: {
-                shortcuts: [{
-                    text: '今天',
-                    onClick(picker) {
-                        picker.$emit('pick', new Date());
-                    }
-                }]
-            },
+            pickerOptions: Utils.createDatepickerOptions(this),
             // 编辑作业内容相关
             editingRow: null, // 当前正在编辑的行
             editingRowIndex: -1, // 当前正在编辑的行索引
@@ -62,7 +55,9 @@ new Vue({
             importStudentsDialogVisible: false,
             importStudentsText: '',
             unmatchedStudentsDialogVisible: false,
-            unmatchedStudentsText: ''
+            unmatchedStudentsText: '',
+            highlightedShortcut: '',
+            lastSelectedDate: this.getCurrentDate()
         };
     },
     computed: {
@@ -95,11 +90,20 @@ new Vue({
             // 获取当前选中作业类型的名称
             const currentType = this.homeworkTypes.find(type => type.id === this.selectedType);
             return currentType ? currentType.name : '';
+        },
+        
+        // 计算当前日期相对于今天的偏移量
+        currentDateOffset() {
+            return Utils.calculateDateOffset(this.currentDate);
         }
     },
     watch: {
         currentDate(newVal) {
             sessionStorage.setItem('selectedDate', newVal);
+            // 根据当前日期设置高亮的快捷按钮
+            this.setHighlightedShortcut();
+            // 更新最后选中的日期
+            this.lastSelectedDate = newVal;
         },
         selectedType(newVal) {
             sessionStorage.setItem('selectedType', newVal);
@@ -157,8 +161,24 @@ new Vue({
             this.loadData();
         });
         
+        // 初始化高亮状态
+        this.$nextTick(() => {
+            this.setHighlightedShortcut();
+        });
+        
         // 添加全局mouseup事件监听器
         document.addEventListener('mouseup', this.recordPressEndBound);
+        
+        // 监听窗口大小变化，确保日期选择器样式正确
+        window.addEventListener('resize', () => {
+            // 延迟执行以确保DOM已经更新
+            setTimeout(() => {
+                if (this.$refs.datePicker && this.$refs.datePicker.picker && this.$refs.datePicker.picker.visible) {
+                    this.setHighlightedShortcut();
+                }
+            }, 100);
+        });
+        
         // 阻止整个文档的右键菜单，但允许学生按钮上的右键菜单
         document.addEventListener('contextmenu', (event) => {
             // 检查右键点击是否发生在学生按钮上
@@ -184,6 +204,21 @@ new Vue({
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
+        },
+        
+        // 日期选择器获得焦点时
+        onDatePickerFocus() {
+            Utils.onDatePickerFocus(this);
+        },
+        
+        // 根据当前日期设置高亮的快捷按钮
+        setHighlightedShortcut() {
+            Utils.setHighlightedShortcut(this);
+        },
+        
+        // 强制更新日期选择器高亮状态
+        forceUpdateDatepickerHighlight() {
+            Utils.forceUpdateDatepickerHighlight(this);
         },
         tableRowClassName({row, rowIndex}) {
             // 为学生历史欠交记录表格添加行样式

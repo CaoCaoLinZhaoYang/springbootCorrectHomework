@@ -747,6 +747,29 @@ body.english-theme .el-table th {
     border-radius: 15px;
 }
 
+/* 日期选择器快捷按钮高亮样式 */
+.el-picker-panel__shortcut.highlighted {
+    background-color: #409EFF;
+    color: white;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* 为所有屏幕尺寸添加快捷按钮样式，确保横屏时也能正常显示 */
+@media (min-width: 401px) {
+    .el-picker-panel__shortcut {
+        text-align: right;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    
+    /* 调整快捷按钮容器 */
+    .el-picker-panel__sidebar {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+}
+
 /* 加载指示器样式 */
 .loading-overlay {
     position: fixed;

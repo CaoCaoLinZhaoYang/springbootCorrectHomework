@@ -35,12 +35,14 @@
                     <div class="date-controls">
                         <div class="date-picker-container">
                             <el-date-picker
+                                ref="datePicker"
                                 v-model="currentDate"
                                 type="date"
                                 placeholder="选择日期"
                                 format="MM月dd日"
                                 value-format="yyyy-MM-dd"
                                 @change="loadData"
+                                @focus="onDatePickerFocus"
                                 :clearable="false"
                                 style="width: 100%; cursor: pointer;"
                                 :editable="false"

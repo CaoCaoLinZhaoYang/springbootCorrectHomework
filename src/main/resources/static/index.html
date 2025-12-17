@@ -24,12 +24,14 @@
                 <div style="margin-right: 10px;">
                     <div>
                         <el-date-picker
+                                ref="datePicker"
                                 v-model="currentDate"
                                 type="date"
                                 placeholder="选择日期"
                                 format="MM月dd日"
                                 value-format="yyyy-MM-dd"
                                 @change="loadData"
+                                @focus="onDatePickerFocus"
                                 :clearable="false"
                                 style="width: 120px; cursor: pointer;"
                                 :editable="false"

@@ -822,6 +822,52 @@ body.english-theme .el-table .el-button--primary:not(:disabled) {
     border-radius: 15px;
 }
 
+/* 修复手机端日期选择器快捷按钮显示问题 */
+@media (max-width: 400px) {
+    .el-picker-panel__shortcut {
+        text-align: right;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    
+    /* 调整快捷按钮容器以适应更多按钮 */
+    .el-picker-panel__sidebar {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    /* 高亮当前选中的快捷按钮 */
+    .el-picker-panel__shortcut.highlighted {
+        background-color: #409EFF;
+        color: white;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+}
+
+/* 添加横屏时的样式规则 */
+@media (orientation: landscape) {
+    .el-picker-panel__shortcut {
+        text-align: right;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    
+    /* 调整快捷按钮容器 */
+    .el-picker-panel__sidebar {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    /* 高亮当前选中的快捷按钮 */
+    .el-picker-panel__shortcut.highlighted {
+        background-color: #409EFF;
+        color: white;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+}
+
 /* 加载指示器样式 */
 .loading-overlay {
     position: fixed;
