@@ -302,7 +302,7 @@
         </el-dialog>
 
         <!-- 手动快录对话框 -->
-        <el-dialog title="手动快录" :visible.sync="manualQuickRecordVisible" width="600px" @close="handleManualQuickRecordClose" :before-close="handleManualQuickRecordBeforeClose">
+        <el-dialog title="手动快录" :visible.sync="manualQuickRecordVisible" width="600px" @close="handleManualQuickRecordClose" :before-close="handleManualQuickRecordBeforeClose" class="manual-quick-record-dialog">
             <el-transfer
                 v-model="manualQuickRecordSelected"
                 :data="manualQuickRecordData"
@@ -317,16 +317,16 @@
             </el-transfer>
             <!-- 自定义按钮 -->
             <div style="display: flex; justify-content: center; margin-top: 10px;">
-                <el-button size="mini" @click="moveToRight" style="margin: 0 10px;" title="到右边" class="manual-quick-record-btn" plain>
+                <el-button size="mini" @click="moveToRight" @touchstart.native.prevent="moveToRight" style="margin: 0 10px;" title="到右边" class="manual-quick-record-btn" plain>
                     <i class="el-icon-arrow-right"></i>
                 </el-button>
-                <el-button size="mini" @click="moveToLeft" style="margin: 0 10px;" title="到左边" class="manual-quick-record-btn" plain>
+                <el-button size="mini" @click="moveToLeft" @touchstart.native.prevent="moveToLeft" style="margin: 0 10px;" title="到左边" class="manual-quick-record-btn" plain>
                     <i class="el-icon-arrow-left"></i>
                 </el-button>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="handleManualQuickRecordCancel">取 消</el-button>
-                <el-button type="primary" @click="handleManualQuickRecordConfirm">确 定</el-button>
+                <el-button @click="handleManualQuickRecordCancel" @touchstart.native.prevent="handleManualQuickRecordCancel">取 消</el-button>
+                <el-button type="primary" @click="handleManualQuickRecordConfirm" @touchstart.native.prevent="handleManualQuickRecordConfirm">确 定</el-button>
             </span>
         </el-dialog>
 

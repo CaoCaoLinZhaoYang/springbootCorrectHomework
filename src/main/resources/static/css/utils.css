@@ -14,6 +14,11 @@
     width: 50% !important;
 }
 
+/* 手动快录弹窗样式调整，统一向上移动50px避免被输入法遮挡 */
+.manual-quick-record-dialog {
+    margin-top: 50px !important;
+}
+
 /* 隐藏默认的穿梭框按钮 */
 .manual-quick-record-transfer .el-transfer__buttons {
     display: none !important;

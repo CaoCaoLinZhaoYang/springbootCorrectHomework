@@ -334,6 +334,9 @@ function openManualQuickRecord(vm) {
                 // 聚焦到左侧面板的搜索框
                 const inputs = transfer.$el.querySelectorAll('.el-transfer-panel:first-child .el-input__inner');
                 if (inputs && inputs.length > 0) {
+                    // 设置输入框属性，使移动设备默认显示数字键盘
+                    inputs[0].setAttribute('inputmode', 'numeric');
+                    inputs[0].setAttribute('pattern', '[0-9]*');
                     inputs[0].focus();
                 }
                 
