@@ -57,7 +57,11 @@ new Vue({
             unmatchedStudentsDialogVisible: false,
             unmatchedStudentsText: '',
             highlightedShortcut: '',
-            lastSelectedDate: this.getCurrentDate()
+            lastSelectedDate: this.getCurrentDate(),
+            // 手动快录相关
+            manualQuickRecordVisible: false,
+            manualQuickRecordData: [],
+            manualQuickRecordSelected: []
         };
     },
     computed: {
@@ -95,6 +99,18 @@ new Vue({
         // 计算当前日期相对于今天的偏移量
         currentDateOffset() {
             return Utils.calculateDateOffset(this.currentDate);
+        },
+        
+        // 计算左侧按钮是否应禁用（右侧没有选中项时禁用，即"到左边"按钮）
+        leftButtonDisabled() {
+            // 移除禁用逻辑，始终返回false使按钮保持启用状态
+            return false;
+        },
+        
+        // 计算右侧按钮是否应禁用（左侧没有选中项时禁用，即"到右边"按钮）
+        rightButtonDisabled() {
+            // 移除禁用逻辑，始终返回false使按钮保持启用状态
+            return false;
         }
     },
     watch: {
@@ -112,6 +128,27 @@ new Vue({
             localStorage.setItem('subjectIndex', newVal);  // 改为使用 localStorage
             // 切换主题
             this.applySubjectTheme();
+        },
+        
+        // 监听穿梭框查询变化
+        transferQuery(newQuery) {
+            // 检查是否是数字查询且以0开头
+            if (newQuery && /^0\d+$/.test(newQuery)) {
+                // 查找匹配的学生
+                const matchedStudents = this.manualQuickRecordData.filter(item => 
+                    this.manualQuickRecordFilterMethod(newQuery, item)
+                );
+                
+                // 如果只有一个匹配项且尚未被选中
+                if (matchedStudents.length === 1 && !this.manualQuickRecordSelected.includes(matchedStudents[0].key)) {
+                    // 自动添加到已选中列表（插入到开头以实现后添加的在上）
+                    const studentKey = matchedStudents[0].key;
+                    this.manualQuickRecordSelected.unshift(studentKey);
+                    
+                    // 清空搜索框
+                    this.transferQuery = '';
+                }
+            }
         }
     },
     mounted() {
@@ -1510,6 +1547,31 @@ new Vue({
             this.importStudentsDialogVisible = true;
         },
         
+        // 打开手动快录对话框
+        openManualQuickRecord() {
+            Utils.openManualQuickRecord(this);
+        },
+        
+        // 处理手动快录查询输入
+        handleManualQuickRecordQueryInput(value) {
+            // 这个方法已经不再使用
+        },
+        
+        // 处理手动快录回车事件
+        handleManualQuickRecordEnter() {
+            // 这个方法已经不再使用
+        },
+        
+        // 手动快录过滤方法
+        manualQuickRecordFilterMethod(query, item) {
+            return Utils.manualQuickRecordFilterMethod(query, item);
+        },
+        
+        // 确认手动快录
+        confirmManualQuickRecord() {
+            Utils.confirmManualQuickRecord(this);
+        },
+        
         // 处理导入的学生名单
         processImportStudents() {
             if (!this.importStudentsText.trim()) {
@@ -1674,6 +1736,33 @@ new Vue({
         // 导出学生欠交作业数据到剪贴板
         exportStudentData() {
             Utils.exportStudentData(this);
+        },
+        
+        // 获取学生标签通过key
+        getStudentLabelByKey(key) {
+            const student = this.manualQuickRecordData.find(item => item.key === key);
+            return student ? student.label : '';
+        },
+        
+        // 移除指定索引的学生
+        removeStudent(index) {
+            this.manualQuickRecordSelected.splice(index, 1);
+            this.manualQuickRecordSelectedTemp.splice(index, 1);
+        },
+        
+        // 移动选中项到右侧（即"到右边"按钮的功能）
+        moveToRight() {
+            Utils.moveToRight(this);
+        },
+        
+        // 移动选中项到左侧（即"到左边"按钮的功能）
+        moveToLeft() {
+            Utils.moveToLeft(this);
+        },
+        
+        // 处理手动快录对话框关闭事件
+        handleManualQuickRecordClose() {
+            Utils.handleManualQuickRecordClose(this);
         }
     }
 });

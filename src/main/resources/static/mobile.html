@@ -6,6 +6,7 @@
     <title>五4班作业订正系统 - 手机版</title>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/utils.css">
 </head>
 <body>
     <div id="app" v-loading.fullscreen.lock="loading">
@@ -287,6 +288,10 @@
         
         <!-- 导入学生名单对话框 -->
         <el-dialog title="导入学生名单" :visible.sync="importStudentsDialogVisible">
+            <div slot="title">
+                <span>导入学生名单</span>
+                <el-button size="mini" type="primary" @click="openManualQuickRecord" @touchstart.native.prevent="openManualQuickRecord" style="margin-left: 10px;">手动快录</el-button>
+            </div>
             <el-input
                 type="textarea"
                 :rows="10"
@@ -297,6 +302,35 @@
             <span slot="footer" class="dialog-footer">
                 <el-button @click="importStudentsDialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="processImportStudents">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 手动快录对话框 -->
+        <el-dialog title="手动快录" :visible.sync="manualQuickRecordVisible" width="600px" @close="handleManualQuickRecordClose">
+            <el-transfer
+                v-model="manualQuickRecordSelected"
+                :data="manualQuickRecordData"
+                :titles="['待选择', '已选择']"
+                :button-texts="['移除', '添加']"
+                filterable
+                :filter-method="manualQuickRecordFilterMethod"
+                filter-placeholder="请输入学号、姓名或拼音首字母"
+                class="manual-quick-record-transfer"
+                ref="manualQuickRecordTransfer"
+                target-order="push">
+            </el-transfer>
+            <!-- 自定义按钮 -->
+            <div style="display: flex; justify-content: center; margin-top: 10px;">
+                <el-button size="mini" @click="moveToRight" style="margin: 0 10px;" title="到右边" class="manual-quick-record-btn" plain>
+                    <i class="el-icon-arrow-right"></i>
+                </el-button>
+                <el-button size="mini" @click="moveToLeft" style="margin: 0 10px;" title="到左边" class="manual-quick-record-btn" plain>
+                    <i class="el-icon-arrow-left"></i>
+                </el-button>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="manualQuickRecordVisible = false">取 消</el-button>
+                <el-button type="primary" @click="confirmManualQuickRecord">确 定</el-button>
             </span>
         </el-dialog>
 

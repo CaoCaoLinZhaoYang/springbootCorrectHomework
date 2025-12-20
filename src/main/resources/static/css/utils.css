@@ -1,0 +1,122 @@
+/* 手动快录穿梭框样式 */
+.manual-quick-record-transfer {
+    height: 100%;
+}
+
+.manual-quick-record-transfer .el-transfer {
+    display: flex !important;
+    flex-direction: row !important;
+    height: 100% !important;
+}
+
+.manual-quick-record-transfer .el-transfer-panel {
+    flex: 1 !important;
+    width: 50% !important;
+}
+
+/* 隐藏默认的穿梭框按钮 */
+.manual-quick-record-transfer .el-transfer__buttons {
+    display: none !important;
+}
+
+/* 手动快录穿梭按钮样式优化 */
+.manual-quick-record-transfer .el-button--mini.is-disabled,
+.manual-quick-record-transfer .el-button--mini.is-disabled:hover,
+.manual-quick-record-transfer .el-button--mini.is-disabled:focus {
+    opacity: 0.5 !important;
+    color: #C0C4CC !important;
+    background-color: #FBFBFB !important;
+    border-color: #E4E7ED !important;
+    cursor: not-allowed !important;
+}
+
+/* 朴素按钮样式 */
+.el-button.manual-quick-record-btn.el-button--default {
+    background: transparent !important;
+    border-color: #dcdfe6 !important;
+    color: #606266 !important;
+}
+
+/* 按钮悬停状态 */
+.el-button.manual-quick-record-btn.el-button--default:hover {
+    border-color: #a0a0a0 !important;
+    color: #333 !important;
+}
+
+/* 按钮按下时根据不同科目主题改变颜色 */
+/* 语文主题 - 深黄色 */
+.chinese-theme .el-button.manual-quick-record-btn.el-button--default:active {
+    border-color: #dda433 !important;
+    color: #dda433 !important;
+}
+
+/* 数学主题 - 蓝色 */
+.math-theme .el-button.manual-quick-record-btn.el-button--default:active {
+    border-color: #409EFF !important;
+    color: #409EFF !important;
+}
+
+/* 英语主题 - 粉红色 */
+.english-theme .el-button.manual-quick-record-btn.el-button--default:active {
+    border-color: #ffb6c1 !important;
+    color: #ffb6c1 !important;
+}
+
+.manual-quick-record-transfer .el-button--mini {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    outline: none !important;
+}
+
+/* 简化穿梭按钮交互样式 - 移除按下后的蓝色状态 */
+.manual-quick-record-transfer .el-button--mini:active,
+.manual-quick-record-transfer .el-button--mini:focus,
+.manual-quick-record-transfer .el-button--mini:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 修复按钮点击后保持浅蓝色的问题 */
+.manual-quick-record-transfer .el-button--mini::-moz-focus-inner {
+    border: 0;
+}
+
+.manual-quick-record-transfer .el-button--mini {
+    outline: none !important;
+}
+
+/* 更加强制地移除按钮的各种状态下的蓝色背景 */
+.manual-quick-record-transfer .el-button--mini,
+.manual-quick-record-transfer .el-button--mini:hover,
+.manual-quick-record-transfer .el-button--mini:focus,
+.manual-quick-record-transfer .el-button--mini:active,
+.manual-quick-record-transfer .el-button--mini:visited {
+    background-color: transparent !important;
+}
+
+/* 防止按钮在任何状态下显示浅蓝色背景 */
+.el-button.manual-quick-record-btn,
+.el-button.manual-quick-record-btn:hover,
+.el-button.manual-quick-record-btn:focus,
+.el-button.manual-quick-record-btn:active {
+    background-color: transparent !important;
+    color: #606266 !important;
+}
+
+/* 特别针对点击后的焦点状态 */
+.el-button.manual-quick-record-btn:focus,
+.el-button.manual-quick-record-btn:focus-visible {
+    background-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 针对按钮按下状态 */
+.el-button.manual-quick-record-btn:active {
+    background-color: transparent !important;
+}

@@ -965,6 +965,8 @@ body.english-theme .el-table .el-button--primary:not(:disabled) {
     user-select: text;
 }
 
+
+
 /* 移动端特殊样式 */
 @media (max-width: 768px) {
     .students-grid {
