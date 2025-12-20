@@ -61,7 +61,9 @@ new Vue({
             // 手动快录相关
             manualQuickRecordVisible: false,
             manualQuickRecordData: [],
-            manualQuickRecordSelected: []
+            manualQuickRecordSelected: [],
+            // 设置弹窗相关
+            settingsDialogVisible: false
         };
     },
     computed: {
@@ -1547,6 +1549,11 @@ new Vue({
             this.importStudentsDialogVisible = true;
         },
         
+        // 显示设置弹窗
+        showSettingsDialog() {
+            this.settingsDialogVisible = true;
+        },
+        
         // 打开手动快录对话框
         openManualQuickRecord() {
             Utils.openManualQuickRecord(this);
@@ -1763,6 +1770,48 @@ new Vue({
         // 处理手动快录对话框关闭事件
         handleManualQuickRecordClose() {
             Utils.handleManualQuickRecordClose(this);
+        },
+        
+        // 处理手动快录对话框关闭前的确认
+        handleManualQuickRecordBeforeClose(done) {
+            // 获取穿梭框组件
+            const transfer = this.$refs.manualQuickRecordTransfer;
+            
+            // 检查左侧是否有选中的学生
+            if (transfer && transfer.leftChecked && transfer.leftChecked.length > 0) {
+                // 弹出确认对话框
+                this.$confirm('您左侧仍有勾选着的学生未处理，确定退出?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '返回',
+                    type: 'warning'
+                }).then(() => {
+                    // 用户确认退出，执行关闭操作
+                    done();
+                }).catch(() => {
+                    // 用户点击返回，不执行任何操作，继续保持手动快录弹窗打开
+                });
+            } else {
+                // 左侧没有选中的学生，直接关闭
+                done();
+            }
+        },
+        
+        // 处理手动快录弹窗的取消按钮
+        handleManualQuickRecordCancel() {
+            // 直接调用关闭前的确认方法
+            this.handleManualQuickRecordBeforeClose(() => {
+                this.manualQuickRecordVisible = false;
+            });
+        },
+        
+        // 处理手动快录弹窗的确定按钮
+        handleManualQuickRecordConfirm() {
+            // 检查是否需要关闭确认
+            this.handleManualQuickRecordBeforeClose(() => {
+                // 只有用户真正确认退出时才执行确认操作
+                Utils.confirmManualQuickRecord(this);
+                this.manualQuickRecordVisible = false;
+            });
         }
     }
 });

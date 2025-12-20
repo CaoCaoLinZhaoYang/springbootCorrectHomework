@@ -72,10 +72,10 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <el-button @click="resetStatus" type="warning">重置订正状态</el-button>
-                    <el-button @click="setAllFinished" type="success">全部订完</el-button>
+                    <el-button @click="showSettingsDialog">设置</el-button>
                     <el-button @click="showUnfinishedStudents">欠交名单</el-button>
                     <el-button @click="showImportStudentsDialog">导入名单</el-button>
+                    <el-button @click="openManualQuickRecord">手动快录</el-button>
                 </div>
                 
                 <div class="search-container">
@@ -288,10 +288,6 @@
         
         <!-- 导入学生名单对话框 -->
         <el-dialog title="导入学生名单" :visible.sync="importStudentsDialogVisible">
-            <div slot="title">
-                <span>导入学生名单</span>
-                <el-button size="mini" type="primary" @click="openManualQuickRecord" @touchstart.native.prevent="openManualQuickRecord" style="margin-left: 10px;">手动快录</el-button>
-            </div>
             <el-input
                 type="textarea"
                 :rows="10"
@@ -306,7 +302,7 @@
         </el-dialog>
 
         <!-- 手动快录对话框 -->
-        <el-dialog title="手动快录" :visible.sync="manualQuickRecordVisible" width="600px" @close="handleManualQuickRecordClose">
+        <el-dialog title="手动快录" :visible.sync="manualQuickRecordVisible" width="600px" @close="handleManualQuickRecordClose" :before-close="handleManualQuickRecordBeforeClose">
             <el-transfer
                 v-model="manualQuickRecordSelected"
                 :data="manualQuickRecordData"
@@ -329,8 +325,8 @@
                 </el-button>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="manualQuickRecordVisible = false">取 消</el-button>
-                <el-button type="primary" @click="confirmManualQuickRecord">确 定</el-button>
+                <el-button @click="handleManualQuickRecordCancel">取 消</el-button>
+                <el-button type="primary" @click="handleManualQuickRecordConfirm">确 定</el-button>
             </span>
         </el-dialog>
 
@@ -345,6 +341,17 @@
             </el-input>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="unmatchedStudentsDialogVisible = false">确 定</el-button>
+            </span>
+        </el-dialog>
+        
+        <!-- 设置弹窗 -->
+        <el-dialog title="设置" :visible.sync="settingsDialogVisible" width="300px">
+            <div style="display: flex; justify-content: center; gap: 15px; padding: 0 10px;">
+                <el-button @click="resetStatus" type="warning" style="flex: none; width: 120px; font-size: 12px; padding: 8px 4px; box-sizing: border-box;">重置本页面订正状态</el-button>
+                <el-button @click="setAllFinished" type="success" style="flex: none; width: 120px; font-size: 12px; padding: 8px 4px; box-sizing: border-box;">设置本页面全部订完</el-button>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="settingsDialogVisible = false">关 闭</el-button>
             </span>
         </el-dialog>
     </div>
