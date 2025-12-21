@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五4班作业订正系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div id="app" v-loading.fullscreen.lock="loading">
+        <div class="header">
+            <h1>五4班作业订正系统</h1>
+            <div class="poem">
+                百川东到海，何时复西归？<br>
+                少壮不努力，老大徒伤悲。
+            </div>
+            <div class="current-time">{{ currentTime }}</div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <div style="display: flex; align-items: flex-start;">
+                    <div style="margin-right: 10px;">
+                        <div>
+                            <el-date-picker
+                                v-model="currentDate"
+                                type="date"
+                                placeholder="选择日期"
+                                format="MM月dd日"
+                                value-format="yyyy-MM-dd"
+                                @change="loadData"
+                                :clearable="false"
+                                style="width: 120px; cursor: pointer;"
+                                :editable="false"
+                                :picker-options="pickerOptions">
+                            </el-date-picker>
+                        </div>
+                        <div>
+                            <el-select v-model="selectedType" @change="loadData" placeholder="请选择作业类型" style="width: 120px; margin-top: 5px;" class="center-select">
+                                <el-option
+                                    v-for="type in homeworkTypes"
+                                    :key="type.id"
+                                    :label="type.name"
+                                    :value="type.id">
+                                </el-option>
+                            </el-select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-right: 10px;">
+                        <div style="display: flex; margin-bottom: 5px;">
+                            <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">前一天</el-button>
+                            <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">后一天</el-button>
+                        </div>
+                        <div style="display: flex;">
+                            <el-button @click="prevAssignment" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center;">前一次</el-button>
+                            <el-button @click="nextAssignment" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center;">后一次</el-button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: flex-start;">
+                        <div style="margin-right: 10px; flex: 1;">
+                            <el-input
+                                v-model="homeworkContent"
+                                placeholder="请输入作业内容"
+                                style="width: 100%;"
+                                @focus="showHomeworkContentDialog"
+                                readonly>
+                            </el-input>
+                            <div style="display: flex; margin-top: 10px;">
+                                <el-button @click="resetStatus" type="warning" style="margin-right: 10px;">重置本页面订正状态</el-button>
+                                <el-button @click="setAllFinished" type="success">设置本页面全部订完</el-button>
+                            </div>
+                        </div>
+                        
+                        <el-button @click="showUnfinishedStudents" style="margin-right: 10px; align-self: flex-start;">本作业欠交名单</el-button>
+                        
+                        <span style="margin-right: 5px; font-weight: bold; display: flex; align-items: center; padding-top: 8px;">彻查学生作业：</span>
+                        <el-autocomplete
+                            v-model="searchKeyword"
+                            :fetch-suggestions="querySearch"
+                            placeholder="请输入学号或姓名"
+                            @select="handleSelectStudent"
+                            style="width: 150px;"
+                            :trigger-on-focus="true">
+                            <template slot-scope="{ item }">
+                                <div class="name">{{ item.studentNumber }} - {{ item.name }}</div>
+                            </template>
+                        </el-autocomplete>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number finished">{{ finishedCount }}</div>
+                    <div>已订正</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number unfinished">{{ unfinishedCount }}</div>
+                    <div>未订正</div>
+                </div>
+                <div class="stat-item">
+                    <el-button 
+                        @click="switchSubject" 
+                        class="subject-toggle-btn"
+                        :class="subjectClass"
+                        style="width: 100%; height: 70px; font-size: 18px; font-weight: bold; border-radius: 15px; color: white;">
+                        {{ currentSubject }}
+                    </el-button>
+                </div>
+                <div class="stat-item">
+                    <el-button 
+                        @click="toggleUnfinishedCount" 
+                        :class="{'unfinished-count-btn': true, 'active': showUnfinishedCount}"
+                        style="width: 100%; height: 70px; font-size: 18px; font-weight: bold; border-radius: 15px;">
+                        欠交数量
+                    </el-button>
+                </div>
+            </div>
+            
+            <div class="students-section">
+                <div class="students-grid">
+                    <el-button
+                        v-for="student in sortedStudents"
+                        :key="student.id"
+                        :class="getStudentButtonClass(student)"
+                        @click="toggleStudentStatus(student)"
+                        @mousedown.native="recordPressStart(student, $event)"
+                        @mouseup.native="recordPressEnd($event)"
+                        @contextmenu.native.prevent="showContextMenu($event, student)"
+                        class="student-btn"
+                        style="position: relative; text-align: center;">
+                        {{ student.studentNumber }}.{{ student.name }}
+                        <div v-if="showUnfinishedCount && studentUnfinishedCounts[student.id] && studentUnfinishedCounts[student.id] > 0" 
+                             class="unfinished-badge">
+                            {{ studentUnfinishedCounts[student.id] > 99 ? '99+' : studentUnfinishedCounts[student.id] }}
+                        </div>
+                    </el-button>
+                </div>
+            </div>
+            
+            <!-- 全局Popover用于长按和右键菜单 -->
+            <el-popover
+                placement="bottom"
+                trigger="manual"
+                v-model="contextMenuVisible"
+                ref="globalPopover">
+                <div style="padding: 5px; cursor: pointer;" @click.stop="checkStudentHistory()">彻查作业</div>
+            </el-popover>
+            
+            <div class="spacer"></div>
+        </div>
+        
+        <!-- 学生历史欠交记录对话框 -->
+        <el-dialog :title="'彻查作业 - ' + selectedStudentName" :visible.sync="studentHistoryDialogVisible" width="60%" class="student-history-dialog">
+            <div style="margin-bottom: 10px;">
+                <el-button 
+                    @click="sortStudentHistory('date', 'asc')"
+                    :type="studentHistorySortField === 'date' && studentHistorySortOrder === 'asc' ? 'primary' : ''">
+                    日期升序
+                </el-button>
+                <el-button 
+                    @click="sortStudentHistory('date', 'desc')"
+                    :type="studentHistorySortField === 'date' && studentHistorySortOrder === 'desc' ? 'primary' : ''">
+                    日期降序
+                </el-button>
+                <el-button 
+                    @click="sortStudentHistory('typeName', 'asc')"
+                    :type="studentHistorySortField === 'typeName' && studentHistorySortOrder === 'asc' ? 'primary' : ''">
+                    作业类型升序
+                </el-button>
+                <el-button 
+                    @click="sortStudentHistory('typeName', 'desc')"
+                    :type="studentHistorySortField === 'typeName' && studentHistorySortOrder === 'desc' ? 'primary' : ''">
+                    作业类型降序
+                </el-button>
+            </div>
+            <el-table :data="studentHistoryRecords" style="width: 100%" :row-class-name="tableRowClassName">
+                <el-table-column prop="date" label="日期" width="120">
+                    <template slot-scope="scope">
+                        {{ formatDate(scope.row.date) }}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="typeName" label="作业类型" width="120"></el-table-column>
+                <el-table-column label="操作" width="120">
+                    <template slot-scope="scope">
+                        <el-button 
+                            size="mini" 
+                            :type="scope.row.corrected ? 'success' : 'danger'" 
+                            @click="markAsFinished(scope.row)">
+                            {{ scope.row.corrected ? '已完成' : '标记完成' }}
+                        </el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="content" label="内容" min-width="200" show-overflow-tooltip></el-table-column>
+                <el-table-column label="功能" width="200">
+                    <template slot-scope="scope">
+                        <div style="display: flex; gap: 5px;">
+                            <el-button 
+                                size="mini" 
+                                type="primary" 
+                                @click="editHomeworkContent(scope.row)">
+                                修改内容
+                            </el-button>
+                            <el-button 
+                                size="mini" 
+                                type="success" 
+                                @click="locateToRecord(scope.row)">
+                                定位
+                            </el-button>
+                        </div>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-dialog>
+        
+        <!-- 历史欠交学生对话框 -->
+        <el-dialog :title="currentTypeName + ' - 历史欠交学生'" :visible.sync="unfinishedStudentsDialogVisible" width="70%" class="unfinished-students-dialog">
+            <div style="margin-bottom: 10px;">
+                <el-button 
+                    @click="sortUnfinishedStudents('date', 'asc')"
+                    :type="unfinishedStudentsSortField === 'date' && unfinishedStudentsSortOrder === 'asc' ? 'primary' : ''">
+                    日期升序
+                </el-button>
+                <el-button 
+                    @click="sortUnfinishedStudents('date', 'desc')"
+                    :type="unfinishedStudentsSortField === 'date' && unfinishedStudentsSortOrder === 'desc' ? 'primary' : ''">
+                    日期降序
+                </el-button>
+                <el-button 
+                    @click="sortUnfinishedStudents('studentNumber', 'asc')"
+                    :type="unfinishedStudentsSortField === 'studentNumber' && unfinishedStudentsSortOrder === 'asc' ? 'primary' : ''">
+                    学号升序
+                </el-button>
+                <el-button 
+                    @click="sortUnfinishedStudents('studentNumber', 'desc')"
+                    :type="unfinishedStudentsSortField === 'studentNumber' && unfinishedStudentsSortOrder === 'desc' ? 'primary' : ''">
+                    学号降序
+                </el-button>
+            </div>
+            <el-table :data="unfinishedStudents" style="width: 100%" :max-height="400" :row-class-name="tableRowClassNameUnfinished">
+                <el-table-column prop="date" label="日期" width="120"></el-table-column>
+                <el-table-column prop="weekDay" label="星期" width="80"></el-table-column>
+                <el-table-column prop="studentNumber" label="学号" width="80"></el-table-column>
+                <el-table-column prop="name" label="姓名" width="120"></el-table-column>
+                <el-table-column label="操作" width="120">
+                    <template slot-scope="scope">
+                        <el-button 
+                            size="mini" 
+                            type="danger" 
+                            @click="markUnfinishedStudentAsFinished(scope.row)">
+                            标记完成
+                        </el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="content" label="作业内容" min-width="200" show-overflow-tooltip></el-table-column>
+                <el-table-column label="功能" width="200">
+                    <template slot-scope="scope">
+                        <div style="display: flex; gap: 5px;">
+                            <el-button 
+                                size="mini" 
+                                type="primary" 
+                                @click="editHomeworkContent(scope.row)">
+                                修改内容
+                            </el-button>
+                            <el-button 
+                                size="mini" 
+                                type="success" 
+                                @click="locateToRecord(scope.row)">
+                                定位
+                            </el-button>
+                        </div>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-dialog>
+        
+        <!-- 作业内容输入对话框 -->
+        <el-dialog title="输入作业内容" :visible.sync="homeworkContentDialogVisible" width="350px" @opened="focusHomeworkContent">
+            <el-input
+                placeholder="请输入作业内容"
+                v-model="tempHomeworkContent"
+                ref="homeworkContentInput"
+                style="width: 300px;"
+                :maxlength="200"
+                @keyup.enter.native="handleEnterKey">
+            </el-input>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="closeHomeworkContentDialog">取 消</el-button>
+                <el-button type="primary" @click="saveHomeworkContentFromDialog">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+
+    <script src="js/vue.js"></script>
+    <script src="js/element-ui.js"></script>
+    <script src="js/axios.min.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
