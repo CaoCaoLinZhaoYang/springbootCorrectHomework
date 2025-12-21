@@ -198,6 +198,7 @@ body.english-theme .stat-item {
     grid-template-columns: repeat(10, 1fr);
     gap: 10px;
     margin-bottom: 20px;
+    align-items: start;
 }
 
 .student-btn {
@@ -224,8 +225,45 @@ body.english-theme .stat-item {
     transform: translateY(-3px);
     box-shadow: 0 5px 10px rgba(0,0,0,0.15);
     /* 修复悬停时变蓝的问题 */
-    color: #333;
-    border-color: #e0e0e0;
+    color: #333 !important;
+    border-color: #e0e0e0 !important;
+}
+
+/* 修复右键时变蓝的问题 */
+.student-btn:active,
+.student-btn:focus,
+.student-btn:active:focus {
+    color: #333 !important;
+    border-color: #e0e0e0 !important;
+}
+
+/* 修复Element UI默认按钮样式对已完成和未完成按钮的影响 */
+.el-button.finished,
+.el-button.unfinished {
+    color: white !important;
+    border: inherit !important;
+}
+
+.el-button.finished:hover,
+.el-button.unfinished:hover {
+    color: white !important;
+    border: inherit !important;
+}
+
+.el-button.finished:active,
+.el-button.finished:focus,
+.el-button.finished:active:focus,
+.el-button.unfinished:active,
+.el-button.unfinished:focus,
+.el-button.unfinished:active:focus {
+    color: white !important;
+    border: inherit !important;
+}
+
+/* 使用最高优先级确保按钮样式不被覆盖 */
+.el-button.finished[style],
+.el-button.unfinished[style] {
+    border: inherit !important;
 }
 
 .student-btn span {
@@ -234,9 +272,9 @@ body.english-theme .stat-item {
 }
 
 .el-button.unfinished {
-    background: linear-gradient(135deg, #ff7b7b, #ff5252);
-    border: 2px solid #ff6b6b;
-    color: white;
+    background: linear-gradient(135deg, #ff7b7b, #ff5252) !important;
+    border: 2px solid #ff6b6b !important;
+    color: white !important;
     width: 100%;
     height: 70px;
     font-size: 18px;
@@ -250,15 +288,18 @@ body.english-theme .stat-item {
 }
 
 .el-button.unfinished:hover {
-    background: linear-gradient(135deg, #ff6b6b, #ff4242);
+    background: linear-gradient(135deg, #ff6b6b, #ff4242) !important;
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(255, 82, 82, 0.4);
+    /* 修复悬停时变蓝的问题 */
+    color: white !important;
+    border-color: #ff6b6b !important;
 }
 
 .el-button.finished {
-    background: linear-gradient(135deg, #67c23a, #4eab29);
-    border: 2px solid #67c23a;
-    color: white;
+    background: linear-gradient(135deg, #67c23a, #4eab29) !important;
+    border: 2px solid #67c23a !important;
+    color: white !important;
     width: 100%;
     height: 70px;
     font-size: 18px;
@@ -272,9 +313,12 @@ body.english-theme .stat-item {
 }
 
 .el-button.finished:hover {
-    background: linear-gradient(135deg, #7cd94d, #5cb831);
+    background: linear-gradient(135deg, #7cd94d, #5cb831) !important;
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(103, 194, 58, 0.4);
+    /* 修复悬停时变蓝的问题 */
+    color: white !important;
+    border-color: #67c23a !important;
 }
 
 .subject-toggle-btn {

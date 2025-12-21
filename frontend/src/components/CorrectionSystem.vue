@@ -44,12 +44,12 @@
 
           <div style="margin-right: 10px;">
             <div style="display: flex; margin-bottom: 5px;">
-              <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">前一天</el-button>
-              <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center; border-radius: 10px;">后一天</el-button>
+              <el-button @click="prevDay" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">前一天</el-button>
+              <el-button @click="nextDay" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">后一天</el-button>
             </div>
             <div style="display: flex;">
-              <el-button @click="prevAssignment" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">前一次</el-button>
-              <el-button @click="nextAssignment" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center; border-radius: 10px;">后一次</el-button>
+              <el-button @click="prevAssignment" style="width: 70px; text-align: center; margin-right: 5px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">前一次</el-button>
+              <el-button @click="nextAssignment" style="width: 70px; text-align: center; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold;">后一次</el-button>
             </div>
           </div>
 
@@ -64,13 +64,13 @@
                   class="homework-content-input el-input">
               </el-input>
               <div style="display: flex; margin-top: 10px;">
-                <el-button @click="resetStatus" type="warning" style="margin-right: 10px; border-radius: 10px;">重置本页面订正状态</el-button>
-                <el-button @click="setAllFinished" type="success" style="border-radius: 10px;">设置本页面全部订完</el-button>
+                <el-button @click="resetStatus" type="warning" style="margin-right: 10px; border-radius: 10px; font-weight: bold;">重置本页面订正状态</el-button>
+                <el-button @click="setAllFinished" type="success" style="border-radius: 10px; font-weight: bold;">设置本页面全部订完</el-button>
               </div>
             </div>
 
-            <el-button @click="showUnfinishedStudents" style="margin-right: 10px; align-self: flex-start; border-radius: 10px;">本作业欠交名单</el-button>
-            <el-button @click="showImportStudentsDialog" style="margin-right: 10px; align-self: flex-start; border-radius: 10px;">导入学生名单</el-button>
+            <el-button @click="showUnfinishedStudents" style="margin-right: 10px; align-self: flex-start; border-radius: 10px; font-weight: bold;">本作业欠交名单</el-button>
+            <el-button @click="showImportStudentsDialog" style="margin-right: 10px; align-self: flex-start; border-radius: 10px; font-weight: bold;">导入学生名单</el-button>
 
             <span style="margin-right: 5px; font-weight: bold; display: flex; align-items: center; padding-top: 8px;">彻查学生作业：</span>
             <el-autocomplete
@@ -130,7 +130,7 @@
               @mouseup.native="recordPressEnd($event)"
               @contextmenu.native.prevent="showContextMenu($event, student)"
               class="student-btn"
-              style="position: relative; text-align: center; display: flex; align-items: center; justify-content: center;">
+              :style="getStudentButtonStyle()">
             <span style="text-align: center; width: 100%; display: inline-block;">{{ student.studentNumber }}.{{ student.name }}</span>
             <div v-if="showUnfinishedCount && studentUnfinishedCounts[student.id] && studentUnfinishedCounts[student.id] > 0"
                  class="unfinished-badge">
@@ -640,6 +640,27 @@ export default {
         return 'finished'
       }
       return 'unfinished'
+    },
+    getStudentButtonStyle() {
+      // 不要在这里设置背景色和边框色，让CSS类来处理
+      return {
+        height: '70px',
+        fontSize: '18px',
+        fontWeight: 'bold',
+        color: '#333',
+        width: '100%',
+        boxSizing: 'border-box',
+        padding: '8px',
+        textAlign: 'center',
+        margin: '0',
+        borderRadius: '15px',
+        boxShadow: '0 3px 6px rgba(0,0,0,0.1)',
+        transition: 'all 0.3s ease',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }
     },
     toggleStudentStatus(student) {
       console.log('toggleStudentStatus 被调用')
@@ -1895,21 +1916,22 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
 }
 
 .chinese-subject {
-  background: linear-gradient(135deg, #FFA500, #FF8C00); /* 橙色 */
-  border: 2px solid #FFA500;
+  background: linear-gradient(135deg, #FFA500, #FF8C00) !important; /* 橙色 */
+  border: 2px solid #FFA500 !important;
 }
 
 .math-subject {
-  background: linear-gradient(135deg, #409EFF, #64b5f6); /* 蓝色 */
-  border: 2px solid #409EFF;
+  background: linear-gradient(135deg, #409EFF, #64b5f6) !important; /* 蓝色 */
+  border: 2px solid #409EFF !important;
 }
 
 .english-subject {
-  background: linear-gradient(135deg, #F56C6C, #ff4242); /* 红色 */
-  border: 2px solid #F56C6C;
+  background: linear-gradient(135deg, #F56C6C, #ff4242) !important; /* 红色 */
+  border: 2px solid #F56C6C !important;
 }
 
 .subject-toggle-btn:hover {
